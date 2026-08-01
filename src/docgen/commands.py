@@ -121,7 +121,29 @@ def render_documents(
                 written.append(write_docx(document, out_dir / f"{key}.docx", diagrams,
                                           template_path=cfg.docx_template))
         typer.echo(f"  {key}: {renderer.title} -> {', '.join(formats)}")
+
+    report_llm_usage(narrative, cfg)
     return written
+
+
+def report_llm_usage(narrative, cfg: DocgenConfig) -> None:
+    """Print token usage + estimated Anthropic API cost for this run (if any)."""
+    client = getattr(narrative, "client", None)
+    calls = getattr(client, "calls", 0)
+    if not client or not calls:
+        return
+    from docgen.llm.pricing import usage_summary_line
+
+    typer.secho(
+        "  " + usage_summary_line(
+            getattr(client, "model", cfg.llm.model),
+            calls,
+            getattr(client, "total_input_tokens", 0),
+            getattr(client, "total_output_tokens", 0),
+        ),
+        fg=typer.colors.CYAN,
+    )
+    typer.echo("  (estimate from published API prices; the Anthropic console is authoritative)")
 
 
 def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, cfg: DocgenConfig) -> None:

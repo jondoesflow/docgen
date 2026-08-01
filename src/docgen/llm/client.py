@@ -30,6 +30,10 @@ class LlmClient:
         self.model = model
         self.max_tokens = max_tokens
         self._log_path = Path(out_dir) / "llm-log.jsonl"
+        # Run totals for the end-of-run cost summary
+        self.calls = 0
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
 
     def complete(self, purpose: str, system: str, user: str) -> str:
         response = self._client.messages.create(
@@ -43,8 +47,11 @@ class LlmClient:
         return text.strip()
 
     def _log(self, purpose: str, user_prompt: str, response, text: str) -> None:
+        usage = getattr(response, "usage", None)
+        self.calls += 1
+        self.total_input_tokens += getattr(usage, "input_tokens", 0) or 0
+        self.total_output_tokens += getattr(usage, "output_tokens", 0) or 0
         try:
-            usage = getattr(response, "usage", None)
             entry = {
                 "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "purpose": purpose,

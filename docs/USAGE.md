@@ -155,6 +155,21 @@ one (copy the shipped file first; there is no merging).
 The shipped files (in `src/docgen/rules/`) are the reference for the exact
 format.
 
+## LLM cost reporting
+
+Every run that calls the Anthropic API ends with a usage summary on the console:
+
+```
+  LLM usage: 9 call(s), 61,204 input + 4,318 output tokens (claude-sonnet-4-6) - estimated cost $0.2484 USD
+  (estimate from published API prices; the Anthropic console is authoritative)
+```
+
+The estimate is computed from published per-token API prices for the
+configured model (see `src/docgen/llm/pricing.py`; update that table if
+Anthropic's pricing changes). Unknown models still get the token counts, just
+no dollar figure. Per-call token detail is in `<output>/llm-log.jsonl`.
+Offline (`--no-llm`) runs print nothing — nothing was sent, nothing was spent.
+
 ## Anonymisation — `redact.yaml`
 
 Applied to every payload before it reaches the Anthropic API. See

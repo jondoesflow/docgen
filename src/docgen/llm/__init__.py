@@ -57,4 +57,5 @@ def make_narrative_provider(snapshot, cfg: DocgenConfig, out_dir: Path, client: 
         finally:
             redactor.write_log(out_dir)
 
+    provider.client = client  # exposed so the run can report usage + estimated cost at the end
     return provider
