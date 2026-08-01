@@ -227,73 +227,61 @@
   "global_option_sets": [],
   "security_roles": [],
   "field_security_profiles": [],
-  "cloud_flows": [],
-  "connection_references": [],
-  "environment_variables": [],
+  "cloud_flows": [
+    {
+      "unique_name": "1c9e4484-4cb5-57c7-aaec-641975ea495c",
+      "display_name": "Contract approval",
+      "description": null,
+      "state": "Activated",
+      "trigger": {
+        "name": "When_a_row_is_added",
+        "type": "OpenApiConnectionWebhook",
+        "kind": "SubscribeWebhookTrigger",
+        "connector": "shared_commondataserviceforapps"
+      },
+      "actions": [
+        {
+          "path": "Start_approval",
+          "name": "Start_approval",
+          "type": "OpenApiConnection",
+          "connector": "shared_commondataserviceforapps",
+          "operation_id": "CreateRecord",
+          "run_after_statuses": []
+        }
+      ],
+      "connectors_used": [
+        "shared_commondataserviceforapps"
+      ],
+      "connection_reference_names": [
+        "dif_dataverse"
+      ],
+      "has_error_scope": false
+    }
+  ],
+  "connection_references": [
+    {
+      "logical_name": "dif_dataverse",
+      "display_name": "Dataverse",
+      "connector_id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "api_name": "shared_commondataserviceforapps"
+    }
+  ],
+  "environment_variables": [
+    {
+      "schema_name": "dif_Endpoint",
+      "display_name": "Endpoint",
+      "description": null,
+      "type": "string",
+      "default_value": "https://v1.example.test",
+      "current_value": null,
+      "is_secret": false
+    }
+  ],
   "plugin_assemblies": [],
   "plugin_steps": [],
   "web_resources": [],
   "custom_connectors": [],
   "canvas_apps": [],
-  "other_components": [
-    {
-      "schema_name_or_id": "1c9e4484-4cb5-57c7-aaec-641975ea495c",
-      "component_type": 29,
-      "type_label": "Workflow / Cloud Flow",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "dif_Endpoint",
-      "component_type": 380,
-      "type_label": "Environment Variable Definition",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "dif_dataverse",
-      "component_type": 10112,
-      "type_label": "Connection Reference",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    }
-  ],
-  "warnings": [
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=10112",
-      "message": "No specialised parser for Connection Reference 'dif_dataverse'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=29",
-      "message": "No specialised parser for Workflow / Cloud Flow '1c9e4484-4cb5-57c7-aaec-641975ea495c'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=380",
-      "message": "No specialised parser for Environment Variable Definition 'dif_Endpoint'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/EnvironmentVariables",
-      "message": "No parser for customizations family <EnvironmentVariables>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/Workflows",
-      "message": "No parser for customizations family <Workflows>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/connectionreferences",
-      "message": "No parser for customizations family <connectionreferences>; its components appear in the generic inventory if they are solution root components."
-    }
-  ]
+  "other_components": [],
+  "warnings": []
 }

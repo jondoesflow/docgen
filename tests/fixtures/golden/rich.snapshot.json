@@ -298,7 +298,14 @@
           ]
         }
       ],
-      "business_rules": []
+      "business_rules": [
+        {
+          "name": "Require budget when active",
+          "scope": "All Forms",
+          "state": "Activated",
+          "primary_entity": "abc_project"
+        }
+      ]
     },
     {
       "logical_name": "abc_task",
@@ -482,170 +489,319 @@
       ]
     }
   ],
-  "security_roles": [],
-  "field_security_profiles": [],
-  "cloud_flows": [],
-  "connection_references": [],
-  "environment_variables": [],
-  "plugin_assemblies": [],
-  "plugin_steps": [],
-  "web_resources": [],
-  "custom_connectors": [],
-  "canvas_apps": [],
+  "security_roles": [
+    {
+      "name": "Project Manager",
+      "role_id": "3ea110cf-0ab5-52b5-807d-0d95b0724ead",
+      "description": null,
+      "privileges": [
+        {
+          "name": "prvCreateabc_project",
+          "level": "organization"
+        },
+        {
+          "name": "prvCreateabc_task",
+          "level": "organization"
+        },
+        {
+          "name": "prvDeleteabc_project",
+          "level": "business_unit"
+        },
+        {
+          "name": "prvReadabc_project",
+          "level": "organization"
+        },
+        {
+          "name": "prvReadabc_task",
+          "level": "organization"
+        },
+        {
+          "name": "prvWriteabc_project",
+          "level": "organization"
+        },
+        {
+          "name": "prvWriteabc_task",
+          "level": "organization"
+        }
+      ]
+    },
+    {
+      "name": "Project Member",
+      "role_id": "3ca5bfab-d345-58d2-89d4-371f97c1fd46",
+      "description": null,
+      "privileges": [
+        {
+          "name": "prvReadabc_project",
+          "level": "business_unit"
+        },
+        {
+          "name": "prvReadabc_task",
+          "level": "user"
+        },
+        {
+          "name": "prvWriteabc_task",
+          "level": "user"
+        }
+      ]
+    }
+  ],
+  "field_security_profiles": [
+    {
+      "name": "HR Restricted",
+      "profile_id": "99bfe794-8335-5bf9-ad65-a5469f49162d",
+      "description": "Access to secured HR fields.",
+      "attribute_permissions": [
+        {
+          "entity": "abc_employee",
+          "attribute": "abc_salary",
+          "can_read": true,
+          "can_create": false,
+          "can_update": false
+        }
+      ]
+    }
+  ],
+  "cloud_flows": [
+    {
+      "unique_name": "3d27af7f-1b6f-50d9-a4ac-2cedcd937eb6",
+      "display_name": "Sync invoices to SQL",
+      "description": "Pushes invoice changes into the finance SQL database.",
+      "state": "Activated",
+      "trigger": {
+        "name": "When_an_invoice_is_updated",
+        "type": "OpenApiConnectionWebhook",
+        "kind": "SubscribeWebhookTrigger",
+        "connector": "shared_commondataserviceforapps"
+      },
+      "actions": [
+        {
+          "path": "Get_invoice",
+          "name": "Get_invoice",
+          "type": "OpenApiConnection",
+          "connector": "shared_commondataserviceforapps",
+          "operation_id": "GetItem",
+          "run_after_statuses": []
+        },
+        {
+          "path": "Insert_row",
+          "name": "Insert_row",
+          "type": "OpenApiConnection",
+          "connector": "shared_sql",
+          "operation_id": "ExecuteProcedure",
+          "run_after_statuses": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "connectors_used": [
+        "shared_commondataserviceforapps",
+        "shared_sql"
+      ],
+      "connection_reference_names": [
+        "abc_dataverse",
+        "abc_sql"
+      ],
+      "has_error_scope": false
+    },
+    {
+      "unique_name": "ebe1d780-84c1-5d72-a81f-3329a0190420",
+      "display_name": "Broken flow",
+      "description": null,
+      "state": "Activated",
+      "trigger": null,
+      "actions": [],
+      "connectors_used": [],
+      "connection_reference_names": [],
+      "has_error_scope": false
+    },
+    {
+      "unique_name": "ed592ace-6fd1-5ca2-b5ad-ac0413262ada",
+      "display_name": "Notify PM on project creation",
+      "description": "Emails the project manager when a project is created.",
+      "state": "Activated",
+      "trigger": {
+        "name": "When_a_row_is_added",
+        "type": "OpenApiConnectionWebhook",
+        "kind": "SubscribeWebhookTrigger",
+        "connector": "shared_commondataserviceforapps"
+      },
+      "actions": [
+        {
+          "path": "Catch_scope",
+          "name": "Catch_scope",
+          "type": "Scope",
+          "connector": null,
+          "operation_id": null,
+          "run_after_statuses": [
+            "Failed",
+            "TimedOut"
+          ]
+        },
+        {
+          "path": "Catch_scope/Log_failure",
+          "name": "Log_failure",
+          "type": "OpenApiConnection",
+          "connector": "shared_commondataserviceforapps",
+          "operation_id": "CreateRecord",
+          "run_after_statuses": []
+        },
+        {
+          "path": "Try_scope",
+          "name": "Try_scope",
+          "type": "Scope",
+          "connector": null,
+          "operation_id": null,
+          "run_after_statuses": []
+        },
+        {
+          "path": "Try_scope/Get_project_manager",
+          "name": "Get_project_manager",
+          "type": "OpenApiConnection",
+          "connector": "shared_commondataserviceforapps",
+          "operation_id": "GetItem",
+          "run_after_statuses": []
+        },
+        {
+          "path": "Try_scope/Send_notification",
+          "name": "Send_notification",
+          "type": "OpenApiConnection",
+          "connector": "shared_office365",
+          "operation_id": "SendEmailV2",
+          "run_after_statuses": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "connectors_used": [
+        "shared_commondataserviceforapps",
+        "shared_office365"
+      ],
+      "connection_reference_names": [
+        "abc_dataverse",
+        "abc_office365"
+      ],
+      "has_error_scope": true
+    }
+  ],
+  "connection_references": [
+    {
+      "logical_name": "abc_dataverse",
+      "display_name": "Dataverse",
+      "connector_id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "api_name": "shared_commondataserviceforapps"
+    },
+    {
+      "logical_name": "abc_office365",
+      "display_name": "Office 365 Outlook",
+      "connector_id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+      "api_name": "shared_office365"
+    },
+    {
+      "logical_name": "abc_sql",
+      "display_name": "Finance SQL",
+      "connector_id": "/providers/Microsoft.PowerApps/apis/shared_sql",
+      "api_name": "shared_sql"
+    }
+  ],
+  "environment_variables": [
+    {
+      "schema_name": "abc_ApiBaseUrl",
+      "display_name": "API Base URL",
+      "description": "Base URL for the finance API.",
+      "type": "string",
+      "default_value": "https://api.example.test",
+      "current_value": null,
+      "is_secret": false
+    },
+    {
+      "schema_name": "abc_ApiKey",
+      "display_name": "API Key",
+      "description": null,
+      "type": "secret",
+      "default_value": null,
+      "current_value": null,
+      "is_secret": true
+    },
+    {
+      "schema_name": "abc_BatchSize",
+      "display_name": "Batch Size",
+      "description": null,
+      "type": "number",
+      "default_value": "50",
+      "current_value": "100",
+      "is_secret": false
+    }
+  ],
+  "plugin_assemblies": [
+    {
+      "name": "Abc.Plugins",
+      "version": "1.2.0.0",
+      "isolation_mode": "sandbox",
+      "culture": "neutral",
+      "public_key_token": "abcdef1234567890"
+    }
+  ],
+  "plugin_steps": [
+    {
+      "name": "Abc.Plugins.ProjectCreate: Create of abc_project",
+      "message": "Create",
+      "primary_entity": "abc_project",
+      "stage": "post_operation",
+      "mode": "sync",
+      "rank": 1,
+      "filtering_attributes": [],
+      "assembly_name": "Abc.Plugins",
+      "plugin_type_name": "Abc.Plugins.ProjectCreate",
+      "state": "Enabled"
+    },
+    {
+      "name": "Abc.Plugins.TaskUpdate: Update of abc_task",
+      "message": "Update",
+      "primary_entity": "abc_task",
+      "stage": "pre_operation",
+      "mode": "sync",
+      "rank": 1,
+      "filtering_attributes": [
+        "abc_effort",
+        "abc_priority"
+      ],
+      "assembly_name": "Abc.Plugins",
+      "plugin_type_name": "Abc.Plugins.TaskUpdate",
+      "state": "Enabled"
+    }
+  ],
+  "web_resources": [
+    {
+      "name": "abc_/scripts/project_form.js",
+      "display_name": "Project Form Script",
+      "type": "js",
+      "description": null
+    },
+    {
+      "name": "abc_/styles/theme.css",
+      "display_name": "Theme Stylesheet",
+      "type": "css",
+      "description": null
+    }
+  ],
+  "custom_connectors": [
+    {
+      "name": "abc_financeapi",
+      "display_name": "Finance API Connector",
+      "description": "Custom connector to the on-prem finance API."
+    }
+  ],
+  "canvas_apps": [
+    {
+      "name": "abc_fieldapp_0001",
+      "display_name": "Field Inspection App",
+      "connections": [
+        "shared_commondataserviceforapps",
+        "shared_sharepointonline"
+      ]
+    }
+  ],
   "other_components": [
-    {
-      "schema_name_or_id": "3ca5bfab-d345-58d2-89d4-371f97c1fd46",
-      "component_type": 20,
-      "type_label": "Security Role",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "3ea110cf-0ab5-52b5-807d-0d95b0724ead",
-      "component_type": 20,
-      "type_label": "Security Role",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "3d27af7f-1b6f-50d9-a4ac-2cedcd937eb6",
-      "component_type": 29,
-      "type_label": "Workflow / Cloud Flow",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "bdb33aa6-f3c6-54bc-b95c-456dd2ab8cef",
-      "component_type": 29,
-      "type_label": "Workflow / Cloud Flow",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "ebe1d780-84c1-5d72-a81f-3329a0190420",
-      "component_type": 29,
-      "type_label": "Workflow / Cloud Flow",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "ed592ace-6fd1-5ca2-b5ad-ac0413262ada",
-      "component_type": 29,
-      "type_label": "Workflow / Cloud Flow",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_/scripts/project_form.js",
-      "component_type": 61,
-      "type_label": "Web Resource",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_/styles/theme.css",
-      "component_type": 61,
-      "type_label": "Web Resource",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "99bfe794-8335-5bf9-ad65-a5469f49162d",
-      "component_type": 70,
-      "type_label": "Field Security Profile",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "Abc.Plugins",
-      "component_type": 91,
-      "type_label": "Plugin Assembly",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "2984f9e5-fd4d-530e-82e3-12536042694c",
-      "component_type": 92,
-      "type_label": "SDK Message Processing Step",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "bfd54c51-3980-50d6-97ac-a6397fed0ec1",
-      "component_type": 92,
-      "type_label": "SDK Message Processing Step",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_fieldapp_0001",
-      "component_type": 300,
-      "type_label": "Canvas App",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_financeapi",
-      "component_type": 372,
-      "type_label": "Connector",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_ApiBaseUrl",
-      "component_type": 380,
-      "type_label": "Environment Variable Definition",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_ApiKey",
-      "component_type": 380,
-      "type_label": "Environment Variable Definition",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_BatchSize",
-      "component_type": 380,
-      "type_label": "Environment Variable Definition",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
     {
       "schema_name_or_id": "abc_mystery_component",
       "component_type": 9999,
@@ -654,190 +810,18 @@
       "raw_summary": {
         "behavior": "root_component"
       }
-    },
-    {
-      "schema_name_or_id": "abc_dataverse",
-      "component_type": 10112,
-      "type_label": "Connection Reference",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_office365",
-      "component_type": 10112,
-      "type_label": "Connection Reference",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
-    },
-    {
-      "schema_name_or_id": "abc_sql",
-      "component_type": 10112,
-      "type_label": "Connection Reference",
-      "source": "solution.xml",
-      "raw_summary": {
-        "behavior": "root_component"
-      }
     }
   ],
   "warnings": [
     {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=10112",
-      "message": "No specialised parser for Connection Reference 'abc_dataverse'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=10112",
-      "message": "No specialised parser for Connection Reference 'abc_office365'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=10112",
-      "message": "No specialised parser for Connection Reference 'abc_sql'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=20",
-      "message": "No specialised parser for Security Role '3ca5bfab-d345-58d2-89d4-371f97c1fd46'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=20",
-      "message": "No specialised parser for Security Role '3ea110cf-0ab5-52b5-807d-0d95b0724ead'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=29",
-      "message": "No specialised parser for Workflow / Cloud Flow '3d27af7f-1b6f-50d9-a4ac-2cedcd937eb6'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=29",
-      "message": "No specialised parser for Workflow / Cloud Flow 'bdb33aa6-f3c6-54bc-b95c-456dd2ab8cef'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=29",
-      "message": "No specialised parser for Workflow / Cloud Flow 'ebe1d780-84c1-5d72-a81f-3329a0190420'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=29",
-      "message": "No specialised parser for Workflow / Cloud Flow 'ed592ace-6fd1-5ca2-b5ad-ac0413262ada'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=300",
-      "message": "No specialised parser for Canvas App 'abc_fieldapp_0001'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=372",
-      "message": "No specialised parser for Connector 'abc_financeapi'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=380",
-      "message": "No specialised parser for Environment Variable Definition 'abc_ApiBaseUrl'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=380",
-      "message": "No specialised parser for Environment Variable Definition 'abc_ApiKey'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=380",
-      "message": "No specialised parser for Environment Variable Definition 'abc_BatchSize'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=61",
-      "message": "No specialised parser for Web Resource 'abc_/scripts/project_form.js'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=61",
-      "message": "No specialised parser for Web Resource 'abc_/styles/theme.css'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=70",
-      "message": "No specialised parser for Field Security Profile '99bfe794-8335-5bf9-ad65-a5469f49162d'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=91",
-      "message": "No specialised parser for Plugin Assembly 'Abc.Plugins'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=92",
-      "message": "No specialised parser for SDK Message Processing Step '2984f9e5-fd4d-530e-82e3-12536042694c'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unknown_component",
-      "context": "solution.xml/RootComponents type=92",
-      "message": "No specialised parser for SDK Message Processing Step 'bfd54c51-3980-50d6-97ac-a6397fed0ec1'; captured as a generic inventory entry."
+      "code": "missing_flow_json",
+      "context": "customizations.xml/Workflows/Broken flow",
+      "message": "clientdata file 'Workflows/Brokenflow-EBE1D780-84C1-5D72-A81F-3329A0190420.json' not found in zip; flow recorded with metadata only"
     },
     {
       "code": "unknown_component",
       "context": "solution.xml/RootComponents type=9999",
       "message": "No specialised parser for component type 9999 'abc_mystery_component'; captured as a generic inventory entry."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/CanvasApps",
-      "message": "No parser for customizations family <CanvasApps>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/Connectors",
-      "message": "No parser for customizations family <Connectors>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/EnvironmentVariables",
-      "message": "No parser for customizations family <EnvironmentVariables>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/FieldSecurityProfiles",
-      "message": "No parser for customizations family <FieldSecurityProfiles>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/PluginAssemblies",
-      "message": "No parser for customizations family <PluginAssemblies>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/Roles",
-      "message": "No parser for customizations family <Roles>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/SdkMessageProcessingSteps",
-      "message": "No parser for customizations family <SdkMessageProcessingSteps>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/WebResources",
-      "message": "No parser for customizations family <WebResources>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/Workflows",
-      "message": "No parser for customizations family <Workflows>; its components appear in the generic inventory if they are solution root components."
-    },
-    {
-      "code": "unparsed_element",
-      "context": "customizations.xml/connectionreferences",
-      "message": "No parser for customizations family <connectionreferences>; its components appear in the generic inventory if they are solution root components."
     }
   ]
 }

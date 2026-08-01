@@ -130,8 +130,25 @@ def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, 
 
 
 def run_check(snapshot_path: Path, out_dir: Path, cfg: DocgenConfig) -> None:
-    typer.secho("`docgen check` is not implemented yet (milestone 4).", fg=typer.colors.YELLOW, err=True)
-    raise typer.Exit(code=3)
+    """Hygiene report only — fast, always offline."""
+    from docgen.hygiene.checks import SEVERITY_ORDER, run_all_checks
+    from docgen.rules_io import load_rules
+    from docgen.snapshot.io import load_snapshot
+
+    snapshot = load_snapshot(snapshot_path)
+    rules = load_rules(cfg)
+    findings = run_all_checks(snapshot, rules)
+    render_documents(snapshot, ["hygiene"], cfg.formats, out_dir, cfg, no_llm=True)
+
+    if findings:
+        by_severity: dict[str, int] = {}
+        for finding in findings:
+            by_severity[finding.severity] = by_severity.get(finding.severity, 0) + 1
+        counts = ", ".join(f"{by_severity[s]} {s}"
+                           for s in sorted(by_severity, key=lambda s: SEVERITY_ORDER.get(s, 9)))
+        typer.secho(f"  {len(findings)} hygiene finding(s): {counts}", fg=typer.colors.YELLOW)
+    else:
+        typer.echo("  no hygiene findings")
 
 
 def run_all(

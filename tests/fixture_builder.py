@@ -461,7 +461,9 @@ class SolutionBuilder:
         if self.plugin_steps:
             steps_el = etree.SubElement(root, "SdkMessageProcessingSteps")
             for ps in self.plugin_steps:
-                step_el = etree.SubElement(steps_el, "SdkMessageProcessingStep", Name=ps["name"])
+                step_el = etree.SubElement(
+                    steps_el, "SdkMessageProcessingStep", Name=ps["name"],
+                    SdkMessageProcessingStepId="{" + guid("step:" + ps["name"]) + "}")
                 etree.SubElement(step_el, "PluginTypeName").text = ps["plugin_type"]
                 etree.SubElement(step_el, "PluginAssemblyName").text = ps["assembly"]
                 etree.SubElement(step_el, "SdkMessage").text = ps["message"]
