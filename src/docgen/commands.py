@@ -191,5 +191,11 @@ def run_all(
     *,
     no_llm: bool,
 ) -> None:
-    typer.secho("`docgen all` is not implemented yet (milestone 6).", fg=typer.colors.YELLOW, err=True)
-    raise typer.Exit(code=3)
+    """parse + check + render everything in one step."""
+    typer.echo("== parse ==")
+    snapshot_path = run_parse(solution_zip, out_dir)
+    typer.echo("== check ==")
+    run_check(snapshot_path, out_dir, cfg)
+    typer.echo("== render ==")
+    run_render(snapshot_path, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+    typer.echo(f"Done. Output folder: {out_dir}")

@@ -8,7 +8,10 @@ from docgen.renderers.docs.data_dictionary import DataDictionaryRenderer
 from docgen.renderers.docs.deployment import DeploymentRenderer
 from docgen.renderers.docs.hygiene import HygieneRenderer
 from docgen.renderers.docs.licensing import LicensingRenderer
+from docgen.renderers.docs.hld import HldRenderer
+from docgen.renderers.docs.integration import IntegrationRenderer
 from docgen.renderers.docs.lld import LldRenderer
+from docgen.renderers.docs.rraid import RraidRenderer
 from docgen.renderers.docs.security_model import SecurityModelRenderer
 
 DOC_RENDERERS: dict[str, type[DocRenderer]] = {
@@ -18,6 +21,9 @@ DOC_RENDERERS: dict[str, type[DocRenderer]] = {
     DeploymentRenderer.key: DeploymentRenderer,
     LicensingRenderer.key: LicensingRenderer,
     HygieneRenderer.key: HygieneRenderer,
+    HldRenderer.key: HldRenderer,
+    IntegrationRenderer.key: IntegrationRenderer,
+    RraidRenderer.key: RraidRenderer,
 }
 
 
