@@ -18,6 +18,15 @@ does not replace them.
 
 Python 3.11+ required.
 
+On Windows, the one-shot setup script creates `.venv`, installs docgen and
+smoke-tests it (`-Dev` also installs pytest and runs the test suite):
+
+```powershell
+.\setup.ps1
+```
+
+Or manually:
+
 ```bash
 pip install .
 ```
