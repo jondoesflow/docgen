@@ -127,7 +127,7 @@ def render_documents(
 
 
 def report_llm_usage(narrative, cfg: DocgenConfig) -> None:
-    """Print token usage + estimated Anthropic API cost for this run (if any)."""
+    """Print token usage + estimated API cost for this run (if any)."""
     client = getattr(narrative, "client", None)
     calls = getattr(client, "calls", 0)
     if not client or not calls:
@@ -143,7 +143,7 @@ def report_llm_usage(narrative, cfg: DocgenConfig) -> None:
         ),
         fg=typer.colors.CYAN,
     )
-    typer.echo("  (estimate from published API prices; the Anthropic console is authoritative)")
+    typer.echo("  (estimate from published API prices; the provider's billing console is authoritative)")
 
 
 def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, cfg: DocgenConfig) -> None:
