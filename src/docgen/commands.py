@@ -182,6 +182,21 @@ def run_check(snapshot_path: Path, out_dir: Path, cfg: DocgenConfig) -> None:
         typer.echo("  no hygiene findings")
 
 
+def run_learn_check(out_dir: Path, cfg: DocgenConfig) -> None:
+    """--check-learn: verify deprecation-rule Learn references are still reachable."""
+    from docgen.learn_check import check_rule_urls, write_report
+    from docgen.rules_io import load_rules
+
+    typer.echo("== learn check ==")
+    results = check_rule_urls(load_rules(cfg).get("deprecations", {}))
+    report = write_report(results, out_dir)
+    unreachable = sum(1 for r in results if r.status == "unreachable")
+    if unreachable:
+        typer.secho(f"  {unreachable} Learn reference(s) unreachable - see {report}", fg=typer.colors.YELLOW)
+    else:
+        typer.echo(f"  {len(results)} deprecation rule reference(s) checked - see {report}")
+
+
 def run_all(
     solution_zip: Path,
     doc_keys: list[str],
@@ -190,6 +205,7 @@ def run_all(
     cfg: DocgenConfig,
     *,
     no_llm: bool,
+    check_learn: bool = False,
 ) -> None:
     """parse + check + render everything in one step."""
     typer.echo("== parse ==")
@@ -198,4 +214,6 @@ def run_all(
     run_check(snapshot_path, out_dir, cfg)
     typer.echo("== render ==")
     run_render(snapshot_path, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+    if check_learn:
+        run_learn_check(out_dir, cfg)
     typer.echo(f"Done. Output folder: {out_dir}")

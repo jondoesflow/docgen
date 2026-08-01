@@ -116,6 +116,7 @@ def render(
     docs: Optional[str] = typer.Option(None, "--docs", help=f"Comma-separated document keys ({','.join(ALL_DOC_KEYS)}). Default: all."),
     format: Optional[str] = typer.Option(None, "--format", help="Comma-separated output formats: md,docx. Default: from config."),
     no_llm: bool = typer.Option(False, "--no-llm", help="Fully offline: deterministic content only, placeholders for narrative."),
+    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network)."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
@@ -128,9 +129,11 @@ def render(
     formats = _parse_formats_option(format, cfg)
     out_dir = _resolve_output(output, cfg)
 
-    from docgen.commands import run_render
+    from docgen.commands import run_learn_check, run_render
 
     run_render(snapshot, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+    if check_learn:
+        run_learn_check(out_dir, cfg)
 
 
 @app.command()
@@ -179,6 +182,7 @@ def all_cmd(
     docs: Optional[str] = typer.Option(None, "--docs", help="Comma-separated document keys. Default: all."),
     format: Optional[str] = typer.Option(None, "--format", help="Comma-separated output formats: md,docx."),
     no_llm: bool = typer.Option(False, "--no-llm", help="Fully offline: deterministic content only, placeholders for narrative."),
+    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network)."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
@@ -191,7 +195,7 @@ def all_cmd(
 
     from docgen.commands import run_all
 
-    run_all(solution_zip, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+    run_all(solution_zip, doc_keys, formats, out_dir, cfg, no_llm=no_llm, check_learn=check_learn)
 
 
 if __name__ == "__main__":
