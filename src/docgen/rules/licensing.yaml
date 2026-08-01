@@ -1,0 +1,51 @@
+# Licensing detection rules. Connector api names are matched against the
+# connectors used by cloud flows and connection references in the snapshot.
+# Override this file by placing a licensing.yaml in the configured rules_dir.
+version: 1
+
+premium_connectors:
+  - api_name: shared_commondataserviceforapps
+    label: Microsoft Dataverse
+    note: Premium in standalone Power Automate; included with most Dynamics 365 licenses. Confirm per-user entitlements.
+  - api_name: shared_commondataservice
+    label: Common Data Service (legacy)
+    note: Premium; also a legacy connector — see deprecation rules.
+  - api_name: shared_sql
+    label: SQL Server
+    note: Requires Power Automate premium (per-user or per-flow) license.
+  - api_name: shared_http
+    label: HTTP
+    note: HTTP trigger/action is premium.
+  - api_name: shared_azurequeues
+    label: Azure Queues
+    note: Premium connector.
+  - api_name: shared_servicebus
+    label: Azure Service Bus
+    note: Premium connector.
+  - api_name: shared_azureblob
+    label: Azure Blob Storage
+    note: Premium connector.
+  - api_name: shared_keyvault
+    label: Azure Key Vault
+    note: Premium connector.
+  - api_name: shared_dynamicscrmonline
+    label: Dynamics 365 (legacy)
+    note: Premium and deprecated — see deprecation rules.
+
+standard_connectors:
+  - shared_office365
+  - shared_office365users
+  - shared_sharepointonline
+  - shared_teams
+  - shared_onedriveforbusiness
+  - shared_planner
+  - shared_approvals
+  - shared_excelonlinebusiness
+  - shared_microsoftforms
+  - shared_outlook
+  - shared_sendmail
+
+# Non-connector premium signals.
+signals:
+  - kind: custom_connector
+    note: Custom connectors require premium Power Platform licensing.

@@ -1,0 +1,37 @@
+# Naming convention rules. `target` selects the component family; `pattern`
+# is a regex the component name must fully match; `applies_to: custom_only`
+# limits the rule to custom components. Severity: error | warning | info.
+# Override this file by placing a naming.yaml in the configured rules_dir.
+version: 1
+
+rules:
+  - id: NAME-001
+    target: entity
+    pattern: "^[a-z][a-z0-9]*_[a-z][a-z0-9_]*$"
+    applies_to: custom_only
+    severity: warning
+    message: Custom table logical names should be lowercase with a publisher prefix (e.g. abc_project).
+  - id: NAME-002
+    target: attribute
+    pattern: "^[a-z][a-z0-9]*_[a-z][a-z0-9_]*$"
+    applies_to: custom_only
+    severity: warning
+    message: Custom column logical names should be lowercase with a publisher prefix (e.g. abc_startdate).
+  - id: NAME-003
+    target: environment_variable
+    pattern: "^[a-z][a-z0-9]*_[A-Za-z0-9_]+$"
+    applies_to: all
+    severity: info
+    message: Environment variable schema names should carry the publisher prefix.
+  - id: NAME-004
+    target: flow
+    pattern: "^(?!Copy of ).+$"
+    applies_to: all
+    severity: warning
+    message: Flow display names should not start with "Copy of" — rename after duplicating.
+  - id: NAME-005
+    target: web_resource
+    pattern: "^[a-z][a-z0-9]*_.+$"
+    applies_to: all
+    severity: info
+    message: Web resource names should carry the publisher prefix (e.g. abc_/scripts/form.js).

@@ -1,0 +1,29 @@
+# Deprecated / discouraged feature detection rules. Each rule's `match.kind`
+# is one of the kinds implemented by the hygiene engine:
+#   connector          — flow connector or connection reference api name
+#   plugin_isolation   — plugin assembly isolation mode value
+#   web_resource_type  — web resource type value
+# Override this file by placing a deprecations.yaml in the configured rules_dir.
+version: 1
+
+deprecations:
+  - id: DEP-001
+    match: { kind: connector, value: shared_dynamicscrmonline }
+    title: Legacy Dynamics 365 connector in use
+    guidance: Migrate flows and connection references to the Microsoft Dataverse connector.
+    learn_url: https://learn.microsoft.com/en-us/connectors/dynamicscrmonline/
+  - id: DEP-002
+    match: { kind: connector, value: shared_commondataservice }
+    title: Legacy Common Data Service connector in use
+    guidance: Migrate to the Microsoft Dataverse connector (shared_commondataserviceforapps).
+    learn_url: https://learn.microsoft.com/en-us/connectors/commondataservice/
+  - id: DEP-003
+    match: { kind: plugin_isolation, value: none }
+    title: Non-sandboxed plugin assembly
+    guidance: Full-trust (non-sandbox) plugin registration is unsupported in Dataverse online. Re-register in sandbox isolation.
+    learn_url: https://learn.microsoft.com/en-us/power-apps/developer/data-platform/plug-ins
+  - id: DEP-004
+    match: { kind: web_resource_type, value: silverlight }
+    title: Silverlight web resource
+    guidance: Silverlight is deprecated and no longer runs in supported browsers. Replace with an HTML/JS web resource or PCF control.
+    learn_url: https://learn.microsoft.com/en-us/power-platform/important-changes-coming
