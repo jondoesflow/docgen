@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "",
+  "docgen_version": "",
+  "source_file": "minimal.zip",
+  "solution": {
+    "unique_name": "MinimalSolution",
+    "display_name": "Minimal Solution",
+    "version": "1.0.0.0",
+    "managed": false,
+    "publisher": {
+      "unique_name": "minpub",
+      "display_name": "Minimal Publisher",
+      "prefix": "min",
+      "option_value_prefix": 10000
+    },
+    "root_component_count": 1
+  },
+  "entities": [
+    {
+      "logical_name": "min_widget",
+      "display_name": "Widget",
+      "display_collection_name": "Widgets",
+      "description": "A minimal test table.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "min_name",
+      "attributes": [
+        {
+          "logical_name": "min_name",
+          "display_name": "Name",
+          "schema_name": "min_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "Primary name of the widget.",
+          "is_custom": true,
+          "max_length": 100,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "min_size",
+          "display_name": "Size",
+          "schema_name": "min_size",
+          "type": "int",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": null,
+          "min_value": 0.0,
+          "max_value": 100.0,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [],
+      "forms": [],
+      "views": [],
+      "business_rules": []
+    }
+  ],
+  "global_option_sets": [],
+  "security_roles": [],
+  "field_security_profiles": [],
+  "cloud_flows": [],
+  "connection_references": [],
+  "environment_variables": [],
+  "plugin_assemblies": [],
+  "plugin_steps": [],
+  "web_resources": [],
+  "custom_connectors": [],
+  "canvas_apps": [],
+  "other_components": [],
+  "warnings": []
+}

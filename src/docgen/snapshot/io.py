@@ -92,7 +92,7 @@ def dump_snapshot(snapshot: Snapshot) -> str:
 
 def save_snapshot(snapshot: Snapshot, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_snapshot(snapshot), encoding="utf-8")
+    path.write_text(dump_snapshot(snapshot), encoding="utf-8", newline="\n")
 
 
 def load_snapshot(path: Path) -> Snapshot:

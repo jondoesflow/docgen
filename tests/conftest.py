@@ -22,3 +22,12 @@ def update_goldens(request) -> bool:
 @pytest.fixture
 def fixtures_dir() -> Path:
     return FIXTURES_DIR
+
+
+@pytest.fixture(scope="session", autouse=True)
+def built_fixtures() -> Path:
+    """Ensure the deterministic fixture zips exist before any test runs."""
+    import fixture_builder
+
+    fixture_builder.build_all(FIXTURES_DIR)
+    return FIXTURES_DIR

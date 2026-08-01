@@ -1,0 +1,843 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "",
+  "docgen_version": "",
+  "source_file": "rich.zip",
+  "solution": {
+    "unique_name": "RichSolution",
+    "display_name": "Rich CE Solution",
+    "version": "2.1.0.0",
+    "managed": false,
+    "publisher": {
+      "unique_name": "devpub",
+      "display_name": "Dev Publisher",
+      "prefix": "abc",
+      "option_value_prefix": 10000
+    },
+    "root_component_count": 27
+  },
+  "entities": [
+    {
+      "logical_name": "abc_employee",
+      "display_name": "Employee",
+      "display_collection_name": "Employees",
+      "description": "Internal staff member.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "abc_name",
+      "attributes": [
+        {
+          "logical_name": "abc_name",
+          "display_name": "Full Name",
+          "schema_name": "abc_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "Employee full name.",
+          "is_custom": true,
+          "max_length": 120,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_salary",
+          "display_name": "Salary",
+          "schema_name": "abc_salary",
+          "type": "money",
+          "requirement_level": "none",
+          "description": "Annual salary — field-secured.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": true,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [
+        {
+          "schema_name": "abc_project_employee",
+          "type": "many_to_many",
+          "referenced_entity": "abc_project",
+          "referencing_entity": "abc_employee",
+          "referencing_attribute": null,
+          "cascade_delete": null,
+          "is_custom": true
+        }
+      ],
+      "forms": [],
+      "views": [
+        {
+          "name": "All Employees",
+          "saved_query_id": "e8c87a5d-9544-51a3-8c2b-15716b147dc4",
+          "view_type": "public",
+          "is_default": true,
+          "columns": [
+            "abc_name"
+          ]
+        }
+      ],
+      "business_rules": []
+    },
+    {
+      "logical_name": "abc_invoice",
+      "display_name": "Client Invoice",
+      "display_collection_name": "Client Invoices",
+      "description": "Invoice raised against a client.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "abc_name",
+      "attributes": [
+        {
+          "logical_name": "abc_amount",
+          "display_name": "Amount",
+          "schema_name": "abc_amount",
+          "type": "money",
+          "requirement_level": "required",
+          "description": "Invoice total.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_name",
+          "display_name": "Invoice Number",
+          "schema_name": "abc_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "Invoice reference number.",
+          "is_custom": true,
+          "max_length": 60,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [],
+      "forms": [],
+      "views": [
+        {
+          "name": "All Invoices",
+          "saved_query_id": "a2e2338a-4905-5df4-866d-1e28eb7f2a0d",
+          "view_type": "public",
+          "is_default": true,
+          "columns": [
+            "abc_name",
+            "abc_amount"
+          ]
+        }
+      ],
+      "business_rules": []
+    },
+    {
+      "logical_name": "abc_project",
+      "display_name": "Project",
+      "display_collection_name": "Projects",
+      "description": "A client engagement or internal project.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "abc_name",
+      "attributes": [
+        {
+          "logical_name": "abc_budget",
+          "display_name": "Budget",
+          "schema_name": "abc_budget",
+          "type": "money",
+          "requirement_level": "none",
+          "description": "Approved budget.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": 0.0,
+          "max_value": 10000000.0,
+          "precision": 2,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": true
+        },
+        {
+          "logical_name": "abc_description",
+          "display_name": "Description",
+          "schema_name": "abc_description",
+          "type": "ntext",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": 4000,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_name",
+          "display_name": "Project Name",
+          "schema_name": "abc_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "The name of the project.",
+          "is_custom": true,
+          "max_length": 200,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_status",
+          "display_name": "Status",
+          "schema_name": "abc_status",
+          "type": "picklist",
+          "requirement_level": "none",
+          "description": "Lifecycle status of the project.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": "abc_projectstatus",
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [
+        {
+          "schema_name": "abc_project_task",
+          "type": "one_to_many",
+          "referenced_entity": "abc_project",
+          "referencing_entity": "abc_task",
+          "referencing_attribute": "abc_projectid",
+          "cascade_delete": "Cascade",
+          "is_custom": true
+        }
+      ],
+      "forms": [
+        {
+          "name": "Information",
+          "form_id": "0ee20485-2d6f-5db9-b7a7-1a8f7ebfbbda",
+          "form_type": "main",
+          "state": "1"
+        },
+        {
+          "name": "Quick Create",
+          "form_id": "24442348-8c75-5a46-8e5b-eccc7c38e4ff",
+          "form_type": "quickcreate",
+          "state": "1"
+        }
+      ],
+      "views": [
+        {
+          "name": "Active Projects",
+          "saved_query_id": "a8ce1c04-4cdb-53b6-9e8b-886a77dbd297",
+          "view_type": "public",
+          "is_default": true,
+          "columns": [
+            "abc_name",
+            "abc_status",
+            "abc_budget"
+          ]
+        },
+        {
+          "name": "Project Lookup",
+          "saved_query_id": "b223e62c-e1a9-59eb-9c8b-94ae5a8551ce",
+          "view_type": "lookup",
+          "is_default": false,
+          "columns": [
+            "abc_name"
+          ]
+        }
+      ],
+      "business_rules": []
+    },
+    {
+      "logical_name": "abc_task",
+      "display_name": "Project Task",
+      "display_collection_name": "Project Tasks",
+      "description": "Work item under a project.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "abc_name",
+      "attributes": [
+        {
+          "logical_name": "abc_effort",
+          "display_name": "Effort (hours)",
+          "schema_name": "abc_effort",
+          "type": "decimal",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": null,
+          "min_value": 0.0,
+          "max_value": 1000.0,
+          "precision": 2,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_name",
+          "display_name": "Task Name",
+          "schema_name": "abc_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "Short task title.",
+          "is_custom": true,
+          "max_length": 150,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_priority",
+          "display_name": "Priority",
+          "schema_name": "abc_priority",
+          "type": "picklist",
+          "requirement_level": "none",
+          "description": "Task priority.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": {
+            "name": "abc_priority",
+            "display_name": "Priority",
+            "is_global": false,
+            "option_set_type": "picklist",
+            "options": [
+              {
+                "value": 10000,
+                "label": "Low",
+                "description": null
+              },
+              {
+                "value": 10001,
+                "label": "Medium",
+                "description": null
+              },
+              {
+                "value": 10002,
+                "label": "High",
+                "description": null
+              }
+            ]
+          },
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "abc_projectid",
+          "display_name": "Project",
+          "schema_name": "abc_projectid",
+          "type": "lookup",
+          "requirement_level": "required",
+          "description": "Parent project.",
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [
+            "abc_project"
+          ],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [],
+      "forms": [
+        {
+          "name": "Information",
+          "form_id": "b85fde6f-f422-550c-950e-da441819405d",
+          "form_type": "main",
+          "state": "1"
+        }
+      ],
+      "views": [
+        {
+          "name": "My Tasks",
+          "saved_query_id": "a6790ca5-8afd-5849-a6af-ef712e6b64c4",
+          "view_type": "public",
+          "is_default": true,
+          "columns": [
+            "abc_name",
+            "abc_priority"
+          ]
+        }
+      ],
+      "business_rules": []
+    }
+  ],
+  "global_option_sets": [
+    {
+      "name": "abc_projectstatus",
+      "display_name": "Project Status",
+      "is_global": true,
+      "option_set_type": "picklist",
+      "options": [
+        {
+          "value": 10000,
+          "label": "Planned",
+          "description": null
+        },
+        {
+          "value": 10001,
+          "label": "Active",
+          "description": null
+        },
+        {
+          "value": 10002,
+          "label": "On Hold",
+          "description": null
+        },
+        {
+          "value": 10003,
+          "label": "Complete",
+          "description": null
+        }
+      ]
+    },
+    {
+      "name": "abc_unused",
+      "display_name": "Unused Option Set",
+      "is_global": true,
+      "option_set_type": "picklist",
+      "options": [
+        {
+          "value": 10000,
+          "label": "Never Referenced",
+          "description": null
+        }
+      ]
+    }
+  ],
+  "security_roles": [],
+  "field_security_profiles": [],
+  "cloud_flows": [],
+  "connection_references": [],
+  "environment_variables": [],
+  "plugin_assemblies": [],
+  "plugin_steps": [],
+  "web_resources": [],
+  "custom_connectors": [],
+  "canvas_apps": [],
+  "other_components": [
+    {
+      "schema_name_or_id": "3ca5bfab-d345-58d2-89d4-371f97c1fd46",
+      "component_type": 20,
+      "type_label": "Security Role",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "3ea110cf-0ab5-52b5-807d-0d95b0724ead",
+      "component_type": 20,
+      "type_label": "Security Role",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "3d27af7f-1b6f-50d9-a4ac-2cedcd937eb6",
+      "component_type": 29,
+      "type_label": "Workflow / Cloud Flow",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "bdb33aa6-f3c6-54bc-b95c-456dd2ab8cef",
+      "component_type": 29,
+      "type_label": "Workflow / Cloud Flow",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "ebe1d780-84c1-5d72-a81f-3329a0190420",
+      "component_type": 29,
+      "type_label": "Workflow / Cloud Flow",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "ed592ace-6fd1-5ca2-b5ad-ac0413262ada",
+      "component_type": 29,
+      "type_label": "Workflow / Cloud Flow",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_/scripts/project_form.js",
+      "component_type": 61,
+      "type_label": "Web Resource",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_/styles/theme.css",
+      "component_type": 61,
+      "type_label": "Web Resource",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "99bfe794-8335-5bf9-ad65-a5469f49162d",
+      "component_type": 70,
+      "type_label": "Field Security Profile",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "Abc.Plugins",
+      "component_type": 91,
+      "type_label": "Plugin Assembly",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "2984f9e5-fd4d-530e-82e3-12536042694c",
+      "component_type": 92,
+      "type_label": "SDK Message Processing Step",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "bfd54c51-3980-50d6-97ac-a6397fed0ec1",
+      "component_type": 92,
+      "type_label": "SDK Message Processing Step",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_fieldapp_0001",
+      "component_type": 300,
+      "type_label": "Canvas App",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_financeapi",
+      "component_type": 372,
+      "type_label": "Connector",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_ApiBaseUrl",
+      "component_type": 380,
+      "type_label": "Environment Variable Definition",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_ApiKey",
+      "component_type": 380,
+      "type_label": "Environment Variable Definition",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_BatchSize",
+      "component_type": 380,
+      "type_label": "Environment Variable Definition",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_mystery_component",
+      "component_type": 9999,
+      "type_label": null,
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_dataverse",
+      "component_type": 10112,
+      "type_label": "Connection Reference",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_office365",
+      "component_type": 10112,
+      "type_label": "Connection Reference",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "abc_sql",
+      "component_type": 10112,
+      "type_label": "Connection Reference",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=10112",
+      "message": "No specialised parser for Connection Reference 'abc_dataverse'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=10112",
+      "message": "No specialised parser for Connection Reference 'abc_office365'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=10112",
+      "message": "No specialised parser for Connection Reference 'abc_sql'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=20",
+      "message": "No specialised parser for Security Role '3ca5bfab-d345-58d2-89d4-371f97c1fd46'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=20",
+      "message": "No specialised parser for Security Role '3ea110cf-0ab5-52b5-807d-0d95b0724ead'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=29",
+      "message": "No specialised parser for Workflow / Cloud Flow '3d27af7f-1b6f-50d9-a4ac-2cedcd937eb6'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=29",
+      "message": "No specialised parser for Workflow / Cloud Flow 'bdb33aa6-f3c6-54bc-b95c-456dd2ab8cef'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=29",
+      "message": "No specialised parser for Workflow / Cloud Flow 'ebe1d780-84c1-5d72-a81f-3329a0190420'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=29",
+      "message": "No specialised parser for Workflow / Cloud Flow 'ed592ace-6fd1-5ca2-b5ad-ac0413262ada'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=300",
+      "message": "No specialised parser for Canvas App 'abc_fieldapp_0001'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=372",
+      "message": "No specialised parser for Connector 'abc_financeapi'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=380",
+      "message": "No specialised parser for Environment Variable Definition 'abc_ApiBaseUrl'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=380",
+      "message": "No specialised parser for Environment Variable Definition 'abc_ApiKey'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=380",
+      "message": "No specialised parser for Environment Variable Definition 'abc_BatchSize'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=61",
+      "message": "No specialised parser for Web Resource 'abc_/scripts/project_form.js'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=61",
+      "message": "No specialised parser for Web Resource 'abc_/styles/theme.css'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=70",
+      "message": "No specialised parser for Field Security Profile '99bfe794-8335-5bf9-ad65-a5469f49162d'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=91",
+      "message": "No specialised parser for Plugin Assembly 'Abc.Plugins'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=92",
+      "message": "No specialised parser for SDK Message Processing Step '2984f9e5-fd4d-530e-82e3-12536042694c'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=92",
+      "message": "No specialised parser for SDK Message Processing Step 'bfd54c51-3980-50d6-97ac-a6397fed0ec1'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=9999",
+      "message": "No specialised parser for component type 9999 'abc_mystery_component'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/CanvasApps",
+      "message": "No parser for customizations family <CanvasApps>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/Connectors",
+      "message": "No parser for customizations family <Connectors>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/EnvironmentVariables",
+      "message": "No parser for customizations family <EnvironmentVariables>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/FieldSecurityProfiles",
+      "message": "No parser for customizations family <FieldSecurityProfiles>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/PluginAssemblies",
+      "message": "No parser for customizations family <PluginAssemblies>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/Roles",
+      "message": "No parser for customizations family <Roles>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/SdkMessageProcessingSteps",
+      "message": "No parser for customizations family <SdkMessageProcessingSteps>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/WebResources",
+      "message": "No parser for customizations family <WebResources>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/Workflows",
+      "message": "No parser for customizations family <Workflows>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/connectionreferences",
+      "message": "No parser for customizations family <connectionreferences>; its components appear in the generic inventory if they are solution root components."
+    }
+  ]
+}

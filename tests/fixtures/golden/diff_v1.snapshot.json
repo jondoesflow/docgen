@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "",
+  "docgen_version": "",
+  "source_file": "diff_v1.zip",
+  "solution": {
+    "unique_name": "DiffSolution",
+    "display_name": "Diff Test Solution",
+    "version": "1.0.0.0",
+    "managed": false,
+    "publisher": {
+      "unique_name": "difpub",
+      "display_name": "Diff Publisher",
+      "prefix": "dif",
+      "option_value_prefix": 10000
+    },
+    "root_component_count": 5
+  },
+  "entities": [
+    {
+      "logical_name": "dif_client",
+      "display_name": "Client",
+      "display_collection_name": "Clients",
+      "description": "A client organisation.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "dif_name",
+      "attributes": [
+        {
+          "logical_name": "dif_code",
+          "display_name": "Client Code",
+          "schema_name": "dif_code",
+          "type": "nvarchar",
+          "requirement_level": "none",
+          "description": "Short internal code.",
+          "is_custom": true,
+          "max_length": 20,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "dif_name",
+          "display_name": "Client Name",
+          "schema_name": "dif_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": "Client legal name.",
+          "is_custom": true,
+          "max_length": 200,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "dif_notes",
+          "display_name": "Notes",
+          "schema_name": "dif_notes",
+          "type": "ntext",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": 2000,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "dif_rating",
+          "display_name": "Rating",
+          "schema_name": "dif_rating",
+          "type": "picklist",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": {
+            "name": "dif_rating",
+            "display_name": "Rating",
+            "is_global": false,
+            "option_set_type": "picklist",
+            "options": [
+              {
+                "value": 1,
+                "label": "Bronze",
+                "description": null
+              },
+              {
+                "value": 2,
+                "label": "Silver",
+                "description": null
+              },
+              {
+                "value": 3,
+                "label": "Gold",
+                "description": null
+              }
+            ]
+          },
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [
+        {
+          "schema_name": "dif_client_contract",
+          "type": "one_to_many",
+          "referenced_entity": "dif_client",
+          "referencing_entity": "dif_contract",
+          "referencing_attribute": "dif_clientid",
+          "cascade_delete": "RemoveLink",
+          "is_custom": true
+        }
+      ],
+      "forms": [],
+      "views": [],
+      "business_rules": []
+    },
+    {
+      "logical_name": "dif_contract",
+      "display_name": "Contract",
+      "display_collection_name": "Contracts",
+      "description": "A signed engagement contract.",
+      "ownership_type": "UserOwned",
+      "is_custom": true,
+      "is_activity": false,
+      "primary_name_attribute": "dif_name",
+      "attributes": [
+        {
+          "logical_name": "dif_clientid",
+          "display_name": "Client",
+          "schema_name": "dif_clientid",
+          "type": "lookup",
+          "requirement_level": "recommended",
+          "description": null,
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [
+            "dif_client"
+          ],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "dif_name",
+          "display_name": "Contract Ref",
+          "schema_name": "dif_name",
+          "type": "nvarchar",
+          "requirement_level": "system_required",
+          "description": null,
+          "is_custom": true,
+          "max_length": 100,
+          "min_value": null,
+          "max_value": null,
+          "precision": null,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        },
+        {
+          "logical_name": "dif_value",
+          "display_name": "Contract Value",
+          "schema_name": "dif_value",
+          "type": "money",
+          "requirement_level": "none",
+          "description": null,
+          "is_custom": true,
+          "max_length": null,
+          "min_value": null,
+          "max_value": null,
+          "precision": 2,
+          "option_set_name": null,
+          "local_option_set": null,
+          "lookup_targets": [],
+          "is_secured": false,
+          "is_calculated": false,
+          "is_rollup": false,
+          "audit_enabled": false
+        }
+      ],
+      "relationships": [],
+      "forms": [],
+      "views": [],
+      "business_rules": []
+    }
+  ],
+  "global_option_sets": [],
+  "security_roles": [],
+  "field_security_profiles": [],
+  "cloud_flows": [],
+  "connection_references": [],
+  "environment_variables": [],
+  "plugin_assemblies": [],
+  "plugin_steps": [],
+  "web_resources": [],
+  "custom_connectors": [],
+  "canvas_apps": [],
+  "other_components": [
+    {
+      "schema_name_or_id": "1c9e4484-4cb5-57c7-aaec-641975ea495c",
+      "component_type": 29,
+      "type_label": "Workflow / Cloud Flow",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "dif_Endpoint",
+      "component_type": 380,
+      "type_label": "Environment Variable Definition",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    },
+    {
+      "schema_name_or_id": "dif_dataverse",
+      "component_type": 10112,
+      "type_label": "Connection Reference",
+      "source": "solution.xml",
+      "raw_summary": {
+        "behavior": "root_component"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=10112",
+      "message": "No specialised parser for Connection Reference 'dif_dataverse'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=29",
+      "message": "No specialised parser for Workflow / Cloud Flow '1c9e4484-4cb5-57c7-aaec-641975ea495c'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unknown_component",
+      "context": "solution.xml/RootComponents type=380",
+      "message": "No specialised parser for Environment Variable Definition 'dif_Endpoint'; captured as a generic inventory entry."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/EnvironmentVariables",
+      "message": "No parser for customizations family <EnvironmentVariables>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/Workflows",
+      "message": "No parser for customizations family <Workflows>; its components appear in the generic inventory if they are solution root components."
+    },
+    {
+      "code": "unparsed_element",
+      "context": "customizations.xml/connectionreferences",
+      "message": "No parser for customizations family <connectionreferences>; its components appear in the generic inventory if they are solution root components."
+    }
+  ]
+}
