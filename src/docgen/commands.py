@@ -34,7 +34,7 @@ def run_parse(solution_zip: Path, out_dir: Path) -> Path:
     )
     typer.echo(f"  snapshot: {snapshot_path}")
     if s.warnings:
-        typer.secho(f"  {len(s.warnings)} parse warning(s) — see {warnings_path}", fg=typer.colors.YELLOW)
+        typer.secho(f"  {len(s.warnings)} parse warning(s) - see {warnings_path}", fg=typer.colors.YELLOW)
     else:
         typer.echo("  no parse warnings")
     return snapshot_path
@@ -71,9 +71,57 @@ def run_render(
     cfg: DocgenConfig,
     *,
     no_llm: bool,
-) -> None:
-    typer.secho("`docgen render` is not implemented yet (milestone 3).", fg=typer.colors.YELLOW, err=True)
-    raise typer.Exit(code=3)
+) -> list[Path]:
+    from docgen.renderers import get_renderer
+    from docgen.snapshot.io import load_snapshot
+
+    snapshot = load_snapshot(snapshot_path)
+    return render_documents(snapshot, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+
+
+def render_documents(
+    snapshot,
+    doc_keys: list[str],
+    formats: list[str],
+    out_dir: Path,
+    cfg: DocgenConfig,
+    *,
+    no_llm: bool,
+) -> list[Path]:
+    from docgen.renderers import get_renderer
+    from docgen.renderers.base import RenderContext, offline_narrative
+    from docgen.renderers.diagrams import DiagramService
+    from docgen.renderers.docx import write_docx
+    from docgen.renderers.markdown import write_markdown
+    from docgen.rules_io import load_rules
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    diagrams = DiagramService(out_dir)
+    narrative = offline_narrative
+    if not no_llm and cfg.llm.enabled:
+        from docgen.llm import make_narrative_provider
+
+        narrative = make_narrative_provider(snapshot, cfg, out_dir)
+    ctx = RenderContext(config=cfg, out_dir=out_dir, narrative_provider=narrative, rules=load_rules(cfg))
+
+    written: list[Path] = []
+    for key in doc_keys:
+        renderer = get_renderer(key)
+        if renderer is None:
+            typer.secho(f"  {key}: renderer not implemented yet — skipped", fg=typer.colors.YELLOW)
+            continue
+        if not renderer.applies(snapshot):
+            typer.echo(f"  {key}: not applicable to this solution — skipped")
+            continue
+        document = renderer.build(snapshot, ctx)
+        for fmt in formats:
+            if fmt == "md":
+                written.append(write_markdown(document, out_dir / f"{key}.md"))
+            elif fmt == "docx":
+                written.append(write_docx(document, out_dir / f"{key}.docx", diagrams,
+                                          template_path=cfg.docx_template))
+        typer.echo(f"  {key}: {renderer.title} -> {', '.join(formats)}")
+    return written
 
 
 def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, cfg: DocgenConfig) -> None:
