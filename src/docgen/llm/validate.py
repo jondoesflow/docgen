@@ -3,7 +3,13 @@
 Any component-shaped name in a response that does not exist in the snapshot
 (exact match, or rapidfuzz >= 90 for minor casing/pluralisation drift) is a
 violation: the response is rejected and retried, and on second failure the
-renderer falls back to a placeholder. No invented capabilities, ever."""
+renderer falls back to a placeholder. No invented capabilities, ever.
+
+Transcript narrative is validated on the axis that matters for meeting
+documentation: **attribution**. Prose that puts words in the mouth of somebody
+who was not in the room — or was in the room but did not say that — is the
+failure mode that discredits a set of notes, so any "X said / X requires /
+according to X" naming a non-participant is rejected the same way."""
 
 from __future__ import annotations
 
@@ -12,6 +18,7 @@ import re
 from rapidfuzz import fuzz, process
 
 from docgen.snapshot.models import Snapshot
+from docgen.snapshot.transcript import TranscriptSnapshot
 
 # prefixed logical names, e.g. abc_project, new_myfield (publisher prefix idiom)
 _LOGICAL_NAME = re.compile(r"\b[a-z][a-z0-9]{1,11}_[a-z0-9_]+\b")
@@ -95,6 +102,72 @@ def find_violations(text: str, names: set[str]) -> list[str]:
     for candidate in sorted(extract_candidates(text)):
         lowered = candidate.lower()
         if lowered in names:
+            continue
+        best = process.extractOne(lowered, names, scorer=fuzz.ratio)
+        if best is None or best[1] < _ACCEPT_SCORE:
+            violations.append(candidate)
+    return violations
+
+
+# ---------------------------------------------------------------------------
+# Transcript narrative: attribution must match the people in the room
+# ---------------------------------------------------------------------------
+
+_ATTRIBUTION_VERBS = (
+    r"said|says|noted|notes|raised|raises|asked|asks|flagged|flags|described|describes|"
+    r"confirmed|confirms|stated|states|explained|explains|added|adds|wants|wanted|needs|"
+    r"needed|requires|required|emphasised|emphasized|highlighted|reported|observed|argued|"
+    r"agreed|challenged|committed|pushed back|set out|made (?:the|a) (?:point|case)"
+)
+_NAME = r"[A-Z][a-z]{1,15}(?:\s[A-Z][a-z'’-]{1,15}){0,2}"
+_ATTRIBUTION = re.compile(rf"\b(?P<name>{_NAME})\s+(?:{_ATTRIBUTION_VERBS})\b")
+_ATTRIBUTION_LEAD = re.compile(rf"\b(?:according to|per|as)\s+(?P<name>{_NAME})\b")
+_POSSESSIVE = re.compile(rf"\b(?P<name>{_NAME})['’]s\s+(?:view|position|point|concern|team|area|words)\b")
+
+# Sentence-initial words that the name pattern would otherwise swallow.
+_ATTRIBUTION_STOPWORDS = {
+    "the", "this", "that", "they", "these", "those", "he", "she", "it", "we", "you",
+    "both", "several", "many", "most", "some", "all", "everyone", "nobody", "one",
+    "attendees", "participants", "the client", "the consultancy", "the board",
+}
+
+
+def collect_participant_names(snapshot: TranscriptSnapshot) -> set[str]:
+    """Every form a real participant might legitimately be referred to by."""
+    names: set[str] = set()
+    for person in snapshot.participants:
+        if person.key:
+            names.add(person.key.lower())
+        full = (person.name or "").strip()
+        if not full:
+            continue
+        names.add(full.lower())
+        parts = [part for part in full.split() if part]
+        names.update(part.lower() for part in parts)
+        if len(parts) >= 2:
+            names.add(f"{parts[0]} {parts[-1]}".lower())
+    return names
+
+
+def extract_attributions(text: str) -> set[str]:
+    found: set[str] = set()
+    for pattern in (_ATTRIBUTION, _ATTRIBUTION_LEAD, _POSSESSIVE):
+        for match in pattern.finditer(text):
+            candidate = match.group("name").strip()
+            if candidate.lower() in _ATTRIBUTION_STOPWORDS:
+                continue
+            found.add(candidate)
+    return found
+
+
+def find_attribution_violations(text: str, names: set[str]) -> list[str]:
+    """Names the prose attributes statements to that nobody in the room matches."""
+    if not names:
+        return []
+    violations = []
+    for candidate in sorted(extract_attributions(text)):
+        lowered = candidate.lower()
+        if lowered in names or any(part in names for part in lowered.split()):
             continue
         best = process.extractOne(lowered, names, scorer=fuzz.ratio)
         if best is None or best[1] < _ACCEPT_SCORE:

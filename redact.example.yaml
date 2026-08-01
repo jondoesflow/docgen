@@ -2,6 +2,11 @@
 # docgen.yaml). Applied to every payload before it reaches the Anthropic API;
 # named replacements are reversed in the response so local documents keep the
 # real names. Substitutions are logged to <output>/redaction-log.md.
+#
+# This file matters most when running the LLM tier over a MEETING TRANSCRIPT:
+# the slices sent for meeting and section summaries carry speaker names and
+# quoted sentences. List the client and every attendee below, or run --no-llm,
+# which sends nothing at all and still fills every table in every document.
 
 replacements:
   # client / publisher names
@@ -15,6 +20,13 @@ replacements:
   # named individuals appearing in component descriptions
   - match: "Jane Smith"
     replace: "the project manager"
+  # meeting attendees — longest form first, so "Jane Doe" is replaced before "Jane".
+  # Keep the replacement a plausible person-shaped name: the response is validated
+  # against the attendee list, and consistent aliases keep attribution checkable.
+  - match: "Jane Doe"
+    replace: "Attendee One"
+  - match: "Ahmed Karim"
+    replace: "Attendee Two"
 
 patterns:
   # one-way regex redactions (not reversed in responses)

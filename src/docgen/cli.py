@@ -1,8 +1,17 @@
 """docgen command-line interface.
 
 Commands: parse, render, diff, check, all. See docs/USAGE.md for the full
-reference. Snapshot-first: parse produces snapshot.json; every other command
-consumes snapshots, never the zip directly.
+reference. Snapshot-first: parse produces a snapshot; every other command
+consumes snapshots, never the source file directly.
+
+Two input kinds are supported and the commands dispatch on them, so there is
+one workflow to learn rather than two:
+
+    docgen all MySolution.zip           → the solution document set
+    docgen all Workshop.txt             → the meeting document set
+
+`parse` writes `snapshot.json` for a solution and `transcript-snapshot.json`
+for a transcript; `render` reads whichever kind it is given.
 """
 
 from __future__ import annotations
@@ -14,14 +23,16 @@ import typer
 
 from docgen import __version__
 from docgen.config import ConfigError, load_config
-from docgen.constants import ALL_DOC_KEYS, ALL_FORMATS
+from docgen.constants import ALL_DOC_KEYS, ALL_FORMATS, ALL_TRANSCRIPT_DOC_KEYS
 
 app = typer.Typer(
     name="docgen",
     help=(
         "Generate living design documentation for Dynamics 365 CE / Power Platform "
-        "solutions from an exported solution zip.\n\n"
-        "Typical use: docgen all solution.zip -o out/ --no-llm"
+        "solutions from an exported solution zip, and consultancy documentation for "
+        "workshops and meetings from a transcript.\n\n"
+        "Typical use: docgen all solution.zip -o out/ --no-llm\n"
+        "             docgen all workshop-transcript.txt -o out/ --no-llm"
     ),
     no_args_is_help=True,
     add_completion=False,
@@ -30,6 +41,9 @@ app = typer.Typer(
 
 ConfigOpt = typer.Option(None, "--config", "-c", help="Path to docgen.yaml (default: ./docgen.yaml if present).")
 OutputOpt = typer.Option(None, "--output", "-o", help="Output folder (default: from config, 'out').")
+
+SOLUTION_KIND = "solution"
+TRANSCRIPT_KIND = "transcript"
 
 
 def _version_callback(value: bool) -> None:
@@ -42,7 +56,7 @@ def _version_callback(value: bool) -> None:
 def main(
     version: bool = typer.Option(False, "--version", callback=_version_callback, is_eager=True, help="Show version and exit."),
 ) -> None:
-    """docgen — documentation that is regenerated from solution metadata, so it never drifts."""
+    """docgen — documentation regenerated from source material, so it never drifts."""
 
 
 def _load_config_or_exit(config_path: Optional[Path]):
@@ -57,23 +71,52 @@ def _resolve_output(output: Optional[Path], config) -> Path:
     return Path(output) if output is not None else Path(config.output_dir)
 
 
-def _check_zip(solution_zip: Path) -> None:
+def _classify_source(source: Path) -> str:
+    """Solution zip or meeting transcript? Decided by content, not just suffix."""
     import zipfile
 
-    if not solution_zip.is_file():
-        typer.secho(f"Solution zip not found: {solution_zip}", fg=typer.colors.RED, err=True)
+    from docgen.transcripts import looks_like_transcript
+
+    if not source.is_file():
+        typer.secho(f"Input file not found: {source}", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=2)
-    if not zipfile.is_zipfile(solution_zip):
-        typer.secho(f"Not a valid zip file: {solution_zip}", fg=typer.colors.RED, err=True)
+    if zipfile.is_zipfile(source):
+        return SOLUTION_KIND
+    if source.suffix.lower() == ".zip":
+        typer.secho(f"Not a valid zip file: {source}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    if looks_like_transcript(source):
+        return TRANSCRIPT_KIND
+    typer.secho(
+        f"Unrecognised input: {source}. Expected an exported solution zip, or a meeting "
+        "transcript (.txt, .vtt, .md).",
+        fg=typer.colors.RED, err=True,
+    )
+    raise typer.Exit(code=2)
+
+
+def _snapshot_kind_or_exit(snapshot: Path) -> str:
+    from docgen.snapshot.io import SnapshotVersionError, snapshot_kind
+
+    if not snapshot.is_file():
+        typer.secho(f"Snapshot not found: {snapshot}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=2)
+    try:
+        return snapshot_kind(snapshot)
+    except SnapshotVersionError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
         raise typer.Exit(code=2)
 
 
-def _parse_docs_option(docs: Optional[str], config) -> list[str]:
-    keys = [d.strip() for d in docs.split(",") if d.strip()] if docs else list(config.default_docs)
-    unknown = [k for k in keys if k not in ALL_DOC_KEYS]
+def _parse_docs_option(docs: Optional[str], config, kind: str = SOLUTION_KIND) -> list[str]:
+    valid = ALL_TRANSCRIPT_DOC_KEYS if kind == TRANSCRIPT_KIND else ALL_DOC_KEYS
+    default = config.default_transcript_docs if kind == TRANSCRIPT_KIND else config.default_docs
+    keys = [d.strip() for d in docs.split(",") if d.strip()] if docs else list(default)
+    unknown = [k for k in keys if k not in valid]
     if unknown:
         typer.secho(
-            f"Unknown document key(s): {', '.join(unknown)}. Valid keys: {', '.join(ALL_DOC_KEYS)}",
+            f"Unknown {kind} document key(s): {', '.join(unknown)}. "
+            f"Valid {kind} keys: {', '.join(valid)}",
             fg=typer.colors.RED,
             err=True,
         )
@@ -96,38 +139,55 @@ def _parse_formats_option(formats: Optional[str], config) -> list[str]:
 
 @app.command()
 def parse(
-    solution_zip: Path = typer.Argument(..., help="Exported solution zip file."),
+    source: Path = typer.Argument(..., help="Exported solution zip, or a meeting transcript (.txt/.vtt/.md)."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
-    """Parse a solution zip into snapshot.json plus a parse-warnings report."""
+    """Parse a solution zip or a meeting transcript into a snapshot plus a warnings report."""
     cfg = _load_config_or_exit(config)
-    _check_zip(solution_zip)
+    kind = _classify_source(source)
     out_dir = _resolve_output(output, cfg)
+
+    if kind == TRANSCRIPT_KIND:
+        from docgen.commands import run_parse_transcript
+
+        run_parse_transcript(source, out_dir, cfg)
+        return
 
     from docgen.commands import run_parse
 
-    run_parse(solution_zip, out_dir)
+    run_parse(source, out_dir)
 
 
 @app.command()
 def render(
-    snapshot: Path = typer.Argument(..., help="Path to snapshot.json produced by `docgen parse`."),
-    docs: Optional[str] = typer.Option(None, "--docs", help=f"Comma-separated document keys ({','.join(ALL_DOC_KEYS)}). Default: all."),
+    snapshot: Path = typer.Argument(..., help="snapshot.json or transcript-snapshot.json from `docgen parse`."),
+    docs: Optional[str] = typer.Option(
+        None, "--docs",
+        help=(f"Comma-separated document keys. Solution: {','.join(ALL_DOC_KEYS)}. "
+              f"Transcript: {','.join(ALL_TRANSCRIPT_DOC_KEYS)}. Default: all for that kind."),
+    ),
     format: Optional[str] = typer.Option(None, "--format", help="Comma-separated output formats: md,docx. Default: from config."),
     no_llm: bool = typer.Option(False, "--no-llm", help="Fully offline: deterministic content only, placeholders for narrative."),
-    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network)."),
+    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network; solution snapshots only)."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
-    """Render documentation from a snapshot."""
+    """Render documentation from a snapshot. The document set follows the snapshot kind."""
     cfg = _load_config_or_exit(config)
-    if not snapshot.is_file():
-        typer.secho(f"Snapshot not found: {snapshot}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=2)
-    doc_keys = _parse_docs_option(docs, cfg)
+    kind = _snapshot_kind_or_exit(snapshot)
+    doc_keys = _parse_docs_option(docs, cfg, kind)
     formats = _parse_formats_option(format, cfg)
     out_dir = _resolve_output(output, cfg)
+
+    if kind == TRANSCRIPT_KIND:
+        from docgen.commands import run_render_transcript
+
+        run_render_transcript(snapshot, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+        if check_learn:
+            typer.secho("  --check-learn applies to solution snapshots only — skipped.",
+                        fg=typer.colors.YELLOW)
+        return
 
     from docgen.commands import run_learn_check, run_render
 
@@ -144,11 +204,12 @@ def diff(
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
-    """Compare two snapshots: release notes + changed-component report."""
+    """Compare two solution snapshots: release notes + changed-component report."""
     cfg = _load_config_or_exit(config)
     for p in (old_snapshot, new_snapshot):
-        if not p.is_file():
-            typer.secho(f"Snapshot not found: {p}", fg=typer.colors.RED, err=True)
+        if _snapshot_kind_or_exit(p) != SOLUTION_KIND:
+            typer.secho(f"{p} is a transcript snapshot; `docgen diff` compares solution snapshots.",
+                        fg=typer.colors.RED, err=True)
             raise typer.Exit(code=2)
     formats = _parse_formats_option(format, cfg)
     out_dir = _resolve_output(output, cfg)
@@ -160,16 +221,25 @@ def diff(
 
 @app.command()
 def check(
-    snapshot: Path = typer.Argument(..., help="Path to snapshot.json."),
+    snapshot: Path = typer.Argument(..., help="snapshot.json or transcript-snapshot.json."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
-    """Run the hygiene checks only and write the hygiene report (fast)."""
+    """Run the hygiene checks only and write the hygiene report (fast).
+
+    For a solution snapshot that is the build hygiene report; for a transcript
+    snapshot it is the discovery hygiene report — is this good enough to design
+    and estimate from?
+    """
     cfg = _load_config_or_exit(config)
-    if not snapshot.is_file():
-        typer.secho(f"Snapshot not found: {snapshot}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(code=2)
+    kind = _snapshot_kind_or_exit(snapshot)
     out_dir = _resolve_output(output, cfg)
+
+    if kind == TRANSCRIPT_KIND:
+        from docgen.commands import run_check_transcript
+
+        run_check_transcript(snapshot, out_dir, cfg)
+        return
 
     from docgen.commands import run_check
 
@@ -178,24 +248,32 @@ def check(
 
 @app.command("all")
 def all_cmd(
-    solution_zip: Path = typer.Argument(..., help="Exported solution zip file."),
-    docs: Optional[str] = typer.Option(None, "--docs", help="Comma-separated document keys. Default: all."),
+    source: Path = typer.Argument(..., help="Exported solution zip, or a meeting transcript (.txt/.vtt/.md)."),
+    docs: Optional[str] = typer.Option(None, "--docs", help="Comma-separated document keys. Default: all for the input kind."),
     format: Optional[str] = typer.Option(None, "--format", help="Comma-separated output formats: md,docx."),
     no_llm: bool = typer.Option(False, "--no-llm", help="Fully offline: deterministic content only, placeholders for narrative."),
-    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network)."),
+    check_learn: bool = typer.Option(False, "--check-learn", help="Verify deprecation-rule Microsoft Learn references are reachable (network; solutions only)."),
     output: Optional[Path] = OutputOpt,
     config: Optional[Path] = ConfigOpt,
 ) -> None:
-    """Parse + check + render everything in one step."""
+    """Parse + render everything in one step (solutions also get the hygiene check)."""
     cfg = _load_config_or_exit(config)
-    _check_zip(solution_zip)
-    doc_keys = _parse_docs_option(docs, cfg)
+    kind = _classify_source(source)
+    doc_keys = _parse_docs_option(docs, cfg, kind)
     formats = _parse_formats_option(format, cfg)
     out_dir = _resolve_output(output, cfg)
 
+    if kind == TRANSCRIPT_KIND:
+        from docgen.commands import run_all_transcript
+
+        run_all_transcript(source, doc_keys, formats, out_dir, cfg, no_llm=no_llm)
+        if check_learn:
+            typer.secho("  --check-learn applies to solutions only — skipped.", fg=typer.colors.YELLOW)
+        return
+
     from docgen.commands import run_all
 
-    run_all(solution_zip, doc_keys, formats, out_dir, cfg, no_llm=no_llm, check_learn=check_learn)
+    run_all(source, doc_keys, formats, out_dir, cfg, no_llm=no_llm, check_learn=check_learn)
 
 
 if __name__ == "__main__":

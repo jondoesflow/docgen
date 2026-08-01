@@ -1,12 +1,14 @@
 """DocModel → docx emitter via docxtpl.
 
-The template (shipped default or a branded replacement configured with
-`docx_template`) provides the shell: `{{ title }}` / `{{ subtitle }}`
-placeholders, styles, headers/footers. After docxtpl renders those
-placeholders, the generated body is appended to the end of the template
-document using its styles — so a branded template only needs the two
-placeholders plus (optionally) restyled Heading/Table Grid styles.
-See docs/USAGE.md.
+The template provides the shell: `{{ title }}` / `{{ subtitle }}` placeholders,
+styles, headers/footers. It is chosen per document — `templates/HLD.docx` for
+the HLD, `templates/LLD.docx` for the LLD and so on (see `doc_templates.py`) —
+falling back to the single `docx_template` from config and then to the plain
+template shipped in the package. After docxtpl renders the placeholders, the
+generated body is appended to the end of the template document using its
+styles, so a branded template only needs the two placeholders plus (optionally)
+restyled Heading/Table Grid styles. Templates may also reference the extra
+fields passed in `context` (solution or meeting facts). See docs/USAGE.md.
 """
 
 from __future__ import annotations
@@ -116,10 +118,15 @@ def _emit_block(block, container, level: int, diagrams: DiagramService) -> None:
 
 
 def write_docx(document: Document, path: Path, diagrams: DiagramService,
-               template_path: Path | None = None) -> Path:
+               template_path: Path | None = None, context: dict | None = None) -> Path:
     template = Path(template_path) if template_path else default_template_path()
+    if not template.is_file():
+        raise FileNotFoundError(
+            f"Word template not found: {template}. Check docx_template / templates_dir in docgen.yaml."
+        )
     tpl = DocxTemplate(str(template))
-    tpl.render({"title": document.title, "subtitle": document.subtitle})
+    # Document title/subtitle always win over anything a caller passes in.
+    tpl.render({**(context or {}), "title": document.title, "subtitle": document.subtitle})
     body = tpl.docx  # the underlying python-docx Document; body is appended after template content
     for section in document.sections:
         _emit_block(section, body, 1, diagrams)

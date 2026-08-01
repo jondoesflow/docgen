@@ -1,0 +1,121 @@
+================================================================================
+NORTHGATE UTILITIES PLC
+DISCOVERY WORKSHOP 1 OF 2 - SERVICE OPERATIONS
+================================================================================
+
+Date:       Wednesday 6 May 2026
+Time:       10:00 - 12:00 (2 hours)
+Location:   Northgate House, Leeds (hybrid)
+Facilitator: Halloway Partners
+Recording:  Auto-transcribed, lightly cleaned for readability.
+
+--------------------------------------------------------------------------------
+ATTENDEES
+--------------------------------------------------------------------------------
+
+CLIENT - Northgate Utilities plc ("Northgate")
+  Rowan Ellisdale (RE)   Operations Director - project sponsor
+  Kaya Petrov (KP)       Service Desk Manager (joining remotely from Hull)
+
+CONSULTANCY - Halloway Partners ("Halloway")
+  Idris Vance (IV)       Lead Solution Architect
+
+--------------------------------------------------------------------------------
+AGENDA
+--------------------------------------------------------------------------------
+  1. Objectives and context                                10:00 - 10:20
+  2. Requirements by area                                  10:20 - 11:40
+  3. Constraints and next steps                            11:40 - 12:00
+
+================================================================================
+1. OBJECTIVES AND CONTEXT
+================================================================================
+
+[10:02]
+
+IV: Morning both. Rowan, can you set the scene for us?
+
+RE: We run field maintenance for about ninety thousand domestic connections.
+The problem is visibility. When a customer rings to ask where their engineer
+is, we have no line of sight at all and it's the single biggest driver of
+complaints.
+
+KP: My team takes around four hundred calls a week and I'd estimate half of
+those are pure status chasing. It's a genuine concern for us because we've
+been adding headcount every year.
+
+IV: Is that measured or is it a feel?
+
+KP: It's a feel, but we did tag call reasons for a fortnight last autumn and
+status came out at fifty-one per cent. I can send that over.
+
+[ACTION: KP to send the call-reason tagging analysis from autumn 2025]
+
+RE: The board approved this on the basis of two measures. First-time fix above
+eighty per cent, and no growth in service desk headcount.
+
+================================================================================
+2. REQUIREMENTS BY AREA
+================================================================================
+
+[10:24]
+
+--- 2.1 JOB SCHEDULING ---
+
+IV: What does good look like for scheduling?
+
+RE: I want a scheduler to see every open job with its promised date, and I want
+to be able to move work between engineers by dragging it. It has to be a human
+making that call, not the system.
+
+IV: So assisted scheduling rather than automatic.
+
+RE: Yes. I've seen automatic scheduling and it was a disaster because it does
+not know which engineers can work on which assets.
+
+KP: Competency needs to be live data, not the spreadsheet the training team
+keeps. That's non-negotiable if we are going to enforce it.
+
+--- 2.2 CUSTOMER NOTIFICATIONS ---
+
+KP: Ideally customers would get a message when the job is booked and another
+when the engineer is on the way.
+
+RE: I'd like that, but I accept it might be a phase two.
+
+[PARKED: sequencing of customer notifications against the engineer mobile app]
+
+================================================================================
+3. CONSTRAINTS AND NEXT STEPS
+================================================================================
+
+[11:42]
+
+RE: The billing system stays. It was replaced last year and nobody has the
+appetite to touch it, so whatever we do has to integrate with it.
+
+KP: And the engineers are offline for most of a working day. Roughly a third of
+our sites have no usable data connection, so offline capture is mandatory.
+
+IV: That's a significant technical requirement and I want to flag it as one of
+the bigger risk areas. We'll pick it up in the technical session.
+
+RE: We have never properly tested our disaster recovery, which I am saying out
+loud so it is in the transcript.
+
+--- ACTIONS ---
+
+  A1  KP   Send call-reason tagging analysis from autumn 2025.       By 12 May
+  A2  RE   Confirm the billing system integration contact.           By 15 May
+  A3  IV   Propose dates for session 2.
+
+--- PARKED ITEMS ---
+
+  P1  Sequencing of customer notifications vs engineer mobile app
+  P2  Meter replacement programme - mentioned but not explored
+
+[12:00]
+
+IV: That's time, thank you both.
+
+[END OF RECORDING - 12:00]
