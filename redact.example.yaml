@@ -1,0 +1,24 @@
+# Example anonymisation rules (copy to redact.yaml and set redact_file in
+# docgen.yaml). Applied to every payload before it reaches the Anthropic API;
+# named replacements are reversed in the response so local documents keep the
+# real names. Substitutions are logged to <output>/redaction-log.md.
+
+replacements:
+  # client / publisher names
+  - match: "Contoso Ltd"
+    replace: "ClientA"
+  - match: "Contoso"
+    replace: "ClientA"
+  # project codenames
+  - match: "Project Phoenix"
+    replace: "Project Alpha"
+  # named individuals appearing in component descriptions
+  - match: "Jane Smith"
+    replace: "the project manager"
+
+patterns:
+  # one-way regex redactions (not reversed in responses)
+  - regex: "[\\w.+-]+@[\\w.-]+\\.\\w+"
+    replace: "[EMAIL]"
+  - regex: "\\+?\\d[\\d ()-]{7,}\\d"
+    replace: "[PHONE]"
