@@ -125,8 +125,39 @@ def render_documents(
 
 
 def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, cfg: DocgenConfig) -> None:
-    typer.secho("`docgen diff` is not implemented yet (milestone 5).", fg=typer.colors.YELLOW, err=True)
-    raise typer.Exit(code=3)
+    """Release notes + changed-component report from two snapshots."""
+    import json
+
+    from docgen.diffing.engine import diff_snapshots
+    from docgen.renderers.diagrams import DiagramService
+    from docgen.renderers.docs.release_notes import build_release_notes
+    from docgen.renderers.docx import write_docx
+    from docgen.renderers.markdown import write_markdown
+    from docgen.snapshot.io import load_snapshot
+
+    old_snapshot = load_snapshot(old_path)
+    new_snapshot = load_snapshot(new_path)
+    changeset = diff_snapshots(old_snapshot, new_snapshot)
+    document = build_release_notes(changeset)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    report_path = out_dir / "changed-components.json"
+    report_path.write_text(json.dumps(changeset.model_dump(mode="json"), indent=2, ensure_ascii=False) + "\n",
+                           encoding="utf-8", newline="\n")
+    diagrams = DiagramService(out_dir)
+    for fmt in formats:
+        if fmt == "md":
+            write_markdown(document, out_dir / "release-notes.md")
+        elif fmt == "docx":
+            write_docx(document, out_dir / "release-notes.docx", diagrams, template_path=cfg.docx_template)
+
+    breaking = len(changeset.breaking_changes)
+    typer.echo(f"  {len(changeset.changes)} changed component(s), "
+               f"v{changeset.old_version} -> v{changeset.new_version}")
+    if breaking:
+        typer.secho(f"  {breaking} breaking-change candidate(s) - review release-notes", fg=typer.colors.RED)
+    typer.echo(f"  release notes: {out_dir / 'release-notes.md'}")
+    typer.echo(f"  changed-component report: {report_path}")
 
 
 def run_check(snapshot_path: Path, out_dir: Path, cfg: DocgenConfig) -> None:
