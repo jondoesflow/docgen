@@ -17,13 +17,39 @@ default_docs:
   - integration
   - rraid
 
+# Documents rendered from a meeting transcript when --docs is not given.
+# The first three are the record of the session; the rest are the pre-build
+# design set, sharing their keys (and their Word templates) with the solution
+# documents so they can be regenerated as-built after go-live.
+default_transcript_docs:
+  - meeting-notes
+  - requirements
+  - actions
+  - hld
+  - lld
+  - data-dictionary
+  - security
+  - deployment
+  - licensing
+  - integration
+  - rraid
+  - hygiene
+
 formats: [md, docx]
 
-# Path to a branded docxtpl template; omit to use the built-in default.
+# Folder of per-document Word templates: HLD.docx, LLD.docx, Data Dictionary.docx,
+# Meeting Notes.docx and so on. A document with a matching template is poured into
+# it; a document without one falls back to docx_template, then to the built-in
+# default. Names match case- and separator-insensitively. Defaults to ./templates.
+# templates_dir: templates
+
+# Path to a single branded docxtpl template used for every document that has no
+# per-document template above; omit to use the built-in default.
 # docx_template: templates/client-brand.docx
 
-# Folder containing licensing.yaml / deprecations.yaml / naming.yaml overrides.
-# A file present there fully replaces the built-in one of the same name.
+# Folder containing licensing.yaml / deprecations.yaml / naming.yaml /
+# transcript_cues.yaml overrides. A file present there fully replaces the
+# built-in one of the same name.
 # rules_dir: rules/
 
 # Anonymisation rules applied before anything is sent to the Anthropic API.

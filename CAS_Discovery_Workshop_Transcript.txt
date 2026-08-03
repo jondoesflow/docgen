@@ -1,0 +1,999 @@
+================================================================================
+CALDER ANALYTICAL SERVICES LTD
+DISCOVERY WORKSHOP 1 OF 4 - COMMERCIAL & OPERATIONS REQUIREMENTS
+================================================================================
+
+Date:       Tuesday 14 April 2026
+Time:       09:30 - 12:30 (3 hours)
+Location:   Calder House, Warrington - Meeting Room 2 (hybrid, two attendees remote)
+Facilitator: Merrow Bridge Consulting
+Recording:  Auto-transcribed, lightly cleaned for readability.
+            [inaudible] and [crosstalk] markers retained.
+
+--------------------------------------------------------------------------------
+ATTENDEES
+--------------------------------------------------------------------------------
+
+CLIENT - Calder Analytical Services Ltd ("CAS")
+  Priya Raghunathan (PR)   Commercial Director - project sponsor
+  Tom Beckwith (TB)        Head of Laboratory Operations
+  Denise Okafor (DO)       Customer Services Manager (joining remotely from Bristol)
+  Martin Cheung (MC)       IT Manager
+
+CONSULTANCY - Merrow Bridge Consulting ("Merrow Bridge")
+  Alex Fenwick (AF)        Lead Solution Architect
+  Sofia Marchetti (SM)     Principal Business Analyst
+
+--------------------------------------------------------------------------------
+AGENDA
+--------------------------------------------------------------------------------
+  1. Introductions, objectives and ground rules            09:30 - 09:45
+  2. Business context and drivers for change               09:45 - 10:15
+  3. Current state walkthrough: enquiry to cash            10:15 - 11:00
+  4. Break                                                 11:00 - 11:10
+  5. Requirements by functional area                       11:10 - 12:05
+  6. Non-functional, security and compliance               12:05 - 12:20
+  7. Constraints, timeline, actions and next steps         12:20 - 12:30
+
+================================================================================
+1. INTRODUCTIONS, OBJECTIVES AND GROUND RULES
+================================================================================
+
+[09:31]
+
+AF: Morning everyone, thanks for making the time. For the benefit of the
+recording - and Denise, you're dialled in from Bristol, is that right?
+
+DO: I am, yes. Morning all. Sorry I couldn't get up to Warrington, we've got
+two people off in the customer services team this week.
+
+AF: No problem at all. So I'm Alex Fenwick, I'm the lead architect on this from
+the Merrow Bridge side. I've been doing this kind of work for about fourteen
+years, mostly in regulated and asset-heavy environments. And Sofia?
+
+SM: Sofia Marchetti, principal BA. I'll be doing most of the note-taking and
+most of the annoying questions. My job today is to leave here understanding
+your business well enough that we can write requirements you'd actually
+recognise as yours.
+
+PR: Priya Raghunathan, Commercial Director. I own the P&L for the testing
+business and I'm the sponsor for this. In practical terms that means I've
+gone to the board and said we need to do something, and now I have to make
+that true.
+
+TB: Tom Beckwith, Head of Lab Operations. Four labs report to me. I'll be
+honest with you up front, I've sat through two of these before at previous
+employers and both times we ended up with something that made my analysts'
+lives worse, so I'm going to be the sceptical one in the room.
+
+AF: Genuinely, that's the most useful person to have in the room. Please be
+sceptical.
+
+MC: Martin Cheung, IT Manager. There's four of us in IT total, and that
+includes the service desk. So I need to flag now that whatever we end up with,
+we cannot be the ones running it day to day.
+
+AF: Noted, and that's a real constraint - we'll come back to it in the
+non-functional section. Quick ground rules. Three hours, one break at eleven.
+Today we're going wide, not deep. If we hit something that needs two hours of
+its own, we park it and it becomes a follow-up session. Sofia's keeping a
+parking list. And nobody in this room needs to have all the answers - "I don't
+know, I'd need to check" is a perfectly good answer and much better than a
+guess we build on.
+
+SM: The other thing I'd say - we're deliberately not talking about products or
+technology today. Not because we're being cagey, but because if we start
+talking about what a system can do, you'll start describing your requirements
+in terms of what you think is possible. I want to know what you actually need.
+
+TB: That's fair.
+
+PR: Can I ask what happens after today?
+
+AF: Three more sessions - finance and invoicing, data and reporting, then a
+technical one with Martin about integration and infrastructure. After that we
+produce a requirements catalogue, we do a fit-gap against a proposed solution
+approach, and that gives you a shaped proposal with an estimate. Roughly four
+to five weeks from today.
+
+================================================================================
+2. BUSINESS CONTEXT AND DRIVERS FOR CHANGE
+================================================================================
+
+[09:47]
+
+SM: Priya, can you set the scene? Assume we know nothing.
+
+PR: Sure. Calder Analytical Services - we're a contract testing laboratory
+business. Two halves to it. About sixty per cent of revenue is environmental
+testing: soil, water, contaminated land, air quality. Big customers there are
+civil engineering firms, developers, water utilities, a few local authorities.
+The other forty per cent is materials testing - concrete, aggregates, asphalt,
+some metals. That's construction and infrastructure clients.
+
+SM: Size of the business?
+
+PR: Turnover was just under forty-one million last financial year. Three
+hundred and forty staff. Four laboratories - Warrington is the biggest and it's
+head office, then Aberdeen, Bristol, and Dublin.
+
+AF: Dublin being a separate legal entity?
+
+PR: Yes. Calder Analytical Ireland Limited. Separate entity, euros, different
+VAT treatment, and honestly it operates fairly independently. We bought it in
+2021 and never properly integrated it.
+
+MC: They're on completely different systems. That's part of the problem.
+
+PR: It is. And there's a live conversation about acquiring a business in the
+Netherlands, which would make it three countries. That's not signed, it might
+not happen, but I don't want to build something that falls over if it does.
+
+SM: Understood. So what's driving this now? Why this year rather than last
+year or next year?
+
+PR: Three things. First, we're losing work we should be winning. Our quote
+turnaround is too slow. When a contractor needs a price for a ground
+investigation, they want it same day or next day, and we're averaging four
+working days. We've lost two framework bids in the last eighteen months where
+the feedback was explicitly about responsiveness.
+
+TB: And the ones we do win, we sometimes win badly. We've priced jobs we can't
+actually resource.
+
+PR: That's the second thing. We have no line of sight between what commercial
+sells and what the labs can absorb. Tom finds out about a big job when the
+samples arrive at the door.
+
+TB: Which happens more than you'd think. We had a job in February, forty
+thousand pounds of soil analysis, first I knew about it was a courier turning
+up with two hundred and eighty sample tubs.
+
+AF: What was the impact?
+
+TB: We subcontracted about a third of it out at negative margin to hit the
+turnaround, and we blew the deadline on three other customers' work because we
+had to reprioritise. So that one job probably cost us more than it made.
+
+PR: And the third driver is the customer experience. Denise, this is more your
+territory.
+
+DO: Yes. So our customers cannot self-serve at all. If a client wants to know
+where their samples are, or when their results are due, or wants a copy of a
+certificate from eighteen months ago, they ring us. My team of nine takes
+roughly six hundred inbound calls and emails a week, and I would estimate
+sixty to seventy per cent of those are pure status chasing. "Where's my
+report." That's it. That's the whole call.
+
+SM: Have you measured that or is that a feel?
+
+DO: It's a feel, but it's an informed feel. We did a two-week sample last
+October where the team tagged call reasons, and status enquiries came out at
+sixty-four per cent. I can send you that.
+
+SM: Please do, that's exactly the kind of thing that makes a business case
+land.
+
+[ACTION: DO to send call-reason analysis from Oct 2025 sample]
+
+AF: Priya, is there a number attached to any of this? What does success look
+like in twelve months?
+
+PR: The board approved this on the basis of three measures. Quote turnaround
+down to twenty-four hours for standard work. Fifteen per cent increase in
+quote-to-order conversion - we're at about thirty-one per cent now and the
+market benchmark we've been given is closer to forty-five. And a reduction in
+customer services headcount growth - not cuts, but we've been adding a person
+a year and I want that to stop while volumes keep going up.
+
+TB: Can I add one? I want on-time delivery of results above ninety-five per
+cent. We're at about eighty-two.
+
+PR: That's fair, that should be a measure.
+
+SM: Eighty-two per cent against what definition of on-time?
+
+TB: Against the promised turnaround on the job. Which is itself a bit of a
+mess, because the promised turnaround is sometimes what commercial told the
+customer and sometimes what we've written down internally, and those aren't
+always the same number.
+
+AF: That's a really important point and I want to flag it. If those two numbers
+disagree today, then any system we build will need a single place where the
+committed date lives, and a controlled way to change it. That's going to have
+process implications, not just system ones.
+
+TB: Good. Someone should say that out loud to the commercial team.
+
+PR: [laughs] Duly noted.
+
+================================================================================
+3. CURRENT STATE WALKTHROUGH: ENQUIRY TO CASH
+================================================================================
+
+[10:16]
+
+SM: Right. I want to walk the whole thing end to end. Somebody rings up and
+wants some testing done. Take me from there to the money arriving.
+
+DO: I'll start. Enquiries come in three ways. Direct to a named account
+manager, usually by email. Into a shared enquiries mailbox that my team
+monitors. Or through a tender portal for the framework customers.
+
+SM: What proportion each?
+
+DO: Roughly - forty per cent direct to account managers, forty-five per cent
+into the mailbox, fifteen per cent portals. The portal ones are the painful
+ones because every portal is different and someone has to manually rekey it.
+
+SM: What happens to a mailbox enquiry?
+
+DO: One of my team picks it up, and they either quote it themselves if it's
+standard, or they route it to the technical team if it needs an opinion.
+
+SM: How do they decide?
+
+DO: Experience, basically. There's a guidance document but it's from 2019 and
+nobody looks at it. If it's a standard suite - say a contaminated land suite
+on ten soil samples - they'll price it off the rate card. If it's got anything
+unusual in it, or if it's over about five thousand pounds, it goes to
+technical.
+
+TB: And "technical" means one of four people, and if all four are busy it sits.
+
+AF: How long does it sit?
+
+TB: Days. That's your four-day quote turnaround right there.
+
+SM: Where does the quote get built? What's the artefact?
+
+DO: Excel. There are - Martin, how many quote templates are there?
+
+MC: Twelve that I know of. There's probably more on people's local drives.
+
+DO: Twelve templates, and the rate card is a separate spreadsheet that gets
+updated centrally in January and then everyone saves a local copy and it drifts.
+
+PR: This is one of the things that keeps me up at night, honestly. I don't have
+confidence that the prices we're quoting are the prices we've approved.
+
+SM: Is there a discount approval process?
+
+PR: In theory. Account managers can go to ten per cent off list on their own
+authority. Ten to twenty needs a sales manager. Above twenty needs me.
+
+SM: And in practice?
+
+PR: In practice it's an email to me that I approve on my phone, and there's no
+record of it anywhere except my sent items. I found out in March that we'd been
+running a thirty-two per cent discount for a customer for two years based on an
+approval I gave in 2023 for a single job.
+
+AF: Was that discovered by accident?
+
+PR: Completely by accident. Our management accountant spotted it doing margin
+analysis.
+
+SM: OK. So quote goes out. Then what?
+
+DO: Then usually nothing. We send it and we wait.
+
+SM: No follow-up?
+
+DO: Not systematically. The good account managers chase. Some don't. We have no
+way of knowing which quotes are still live and which are dead.
+
+PR: We think about forty per cent of quotes never get followed up at all. That
+came out of a sales review last year.
+
+SM: And when a customer does accept?
+
+DO: They send us a purchase order, or sometimes just an email saying "go
+ahead", and then samples turn up.
+
+TB: Samples turn up is where my world starts. They arrive at goods-in, usually
+by courier, sometimes hand-delivered by the site engineer, occasionally by
+our own sampling team.
+
+SM: Tell me about your own sampling team.
+
+TB: Twenty-five field samplers. They go to site, take samples, fill in a
+chain-of-custody form, bring them back or courier them in. That form is paper.
+Carbon copy, three parts.
+
+AF: Paper chain of custody in 2026?
+
+TB: I know. But it's legally defensible and it works when there's no signal,
+and half our sites have no signal. Any replacement has to work with no
+connectivity, and it has to be signable by the client's site representative.
+
+SM: Noted, that's a hard requirement. What happens when samples land?
+
+TB: Goods-in books them in. Every sample gets a unique reference and a label.
+Then we match them to the job - and that's a manual matching exercise, because
+the sample references the customer used aren't the ones we use.
+
+SM: How often does that go wrong?
+
+TB: Weekly. We have a tray in Warrington we call the orphan tray. Samples that
+have arrived with no paperwork we can match. Sometimes they sit for a fortnight
+until someone rings us asking where their results are.
+
+DO: And then it's my team who gets that call and has no idea what to tell them.
+
+TB: Once they're booked in and matched, the job gets scheduled. Which means a
+supervisor looks at a whiteboard and decides what goes on which instrument in
+what order.
+
+SM: A physical whiteboard?
+
+TB: A physical whiteboard in Warrington, a spreadsheet in Bristol, and I
+genuinely don't know what Aberdeen do. Aberdeen have their own way.
+
+AF: What drives the scheduling decision?
+
+TB: Turnaround promise first. Then instrument availability - some tests can only
+run on certain kit and some kit is only in certain labs. Then batching, because
+a lot of analyses are much cheaper per sample if you run twenty at once instead
+of three. Then analyst availability and competency, because not everyone is
+signed off on every method.
+
+SM: Competency records - where do those live?
+
+TB: A spreadsheet the quality team maintains. It's an accreditation
+requirement, so it's actually well maintained, but it's not connected to
+anything.
+
+SM: Then the testing happens. Then what?
+
+TB: Instrument produces raw data. Analyst reviews it, applies any calculations,
+enters the result. Then it goes for technical check - a second qualified person
+reviews and approves. That's a hard requirement, we can't release anything
+without a second-person approval.
+
+AF: Is that recorded in a way an auditor can follow?
+
+TB: It's recorded, yes. Signature on a paper worksheet, or an initials field in
+the lab system depending on the lab.
+
+MC: Two of the four labs have a lab information system, two don't. Warrington
+and Aberdeen do. Bristol and Dublin are on spreadsheets and paper.
+
+AF: That's significant. We'll need to dig into that in the technical session.
+
+TB: Then a certificate gets produced. Which is a Word template that someone
+populates, checks, converts to PDF, and emails out.
+
+SM: Manually?
+
+TB: Manually. In Warrington there's a mail merge that does about seventy per
+cent of it. Everywhere else it's typed.
+
+DO: And then a copy gets filed on the shared drive, and a copy gets emailed to
+whoever the customer contact was on the job, and that's the end of it as far as
+the lab's concerned.
+
+SM: And invoicing?
+
+PR: Invoicing is a monthly batch. Finance pull a list of completed jobs and
+raise invoices in the finance system. There's a reconciliation step where they
+check the invoice value against the quoted value, and that's where things fall
+apart, because the job has often changed since it was quoted.
+
+SM: Changed how?
+
+TB: Extra samples arrive. Or a result comes back and the customer says actually
+can you also run this other suite on the same material. Or we've had to repeat
+an analysis.
+
+SM: Is a variation recorded anywhere?
+
+TB: Sometimes there's an email. There's no formal variation process.
+
+PR: We wrote off about a hundred and eighty thousand of unbillable work last
+year. Some of that is genuine goodwill but a lot of it is work we did and
+couldn't evidence that the customer had asked for.
+
+AF: That's probably the single clearest financial case in what you've told us
+so far.
+
+PR: I agree, and the board agree.
+
+================================================================================
+4. BREAK
+================================================================================
+
+[11:00 - 11:11]
+
+================================================================================
+5. REQUIREMENTS BY FUNCTIONAL AREA
+================================================================================
+
+[11:11]
+
+SM: Right. Now I want to go area by area and get to what you need, not what you
+do. I'm going to push you on priority as well, because you will not get
+everything at once.
+
+--- 5.1 ENQUIRY, QUOTING AND PRICING ---
+
+SM: Start with quoting. What does good look like?
+
+PR: A quote that any of my team can produce in twenty minutes for standard work,
+using prices I know are the approved prices, that goes out looking professional
+and consistent, and that I can then see the status of.
+
+SM: Break that down. Approved prices - so a single controlled price list?
+
+PR: A single price list, yes. But it's not that simple, because we have three
+pricing models. Standard list price. Framework pricing, where a customer has
+negotiated rates for a two or three year term and those rates need to apply
+automatically. And project pricing, where we've quoted a specific job at a
+specific number.
+
+SM: How many framework agreements?
+
+PR: About forty active. The biggest one covers eleven per cent of our revenue.
+
+SM: Do framework rates vary by test, or is it a percentage off list?
+
+PR: Both, depending on the agreement. Some are a straight percentage. Some have
+a schedule of specific rates for specific tests, and anything not on the
+schedule falls back to list.
+
+AF: And do they have volume commitments or rebates?
+
+PR: Four of them have volume rebates. That's currently calculated by hand in a
+spreadsheet at year end and it's a nightmare.
+
+SM: Is rebate calculation in scope for this, or is that a finance problem?
+
+PR: I'd like it in scope, but I accept it might be a phase two.
+
+[PARKED: framework volume rebate calculation - confirm scope in finance session]
+
+SM: What about the twenty-minute quote? What's in it?
+
+DO: The customer, the site, the number and type of samples, the tests
+requested, the turnaround required, the price, and the terms. And it needs to
+come out as a PDF with our branding.
+
+SM: Turnaround options?
+
+TB: Standard is ten working days. We also do five day, three day, and
+forty-eight hour. Each one carries a surcharge - twenty per cent, fifty per
+cent, and a hundred per cent respectively.
+
+SM: Applied automatically?
+
+TB: It should be. It currently isn't always. Which is a problem because express
+work disrupts the schedule and if we're not charging for it we're absorbing
+that for free.
+
+SM: What about approval - the discount thresholds Priya described. Do you want
+those enforced?
+
+PR: Yes. Enforced, with the approval recorded against the quote, and a record
+of who approved what and when. And I want to be able to approve from my phone,
+because otherwise it'll become the bottleneck.
+
+SM: What happens if a quote needs a technical opinion? You mentioned that
+routing today is ad hoc.
+
+TB: I want that to be a proper handoff with a queue and a visible clock on it.
+Not an email that lands in someone's inbox and drowns.
+
+SM: Should the routing be automatic based on rules, or manual?
+
+TB: Rules would be better. Test type, value, whether it's a new customer.
+
+SM: Can you write those rules down? Because "experience, basically" isn't
+something we can build.
+
+TB: I can, but I'd want to do it with the four technical people. Give me a
+couple of weeks.
+
+[ACTION: TB to document quote routing rules with technical team - 2 weeks]
+
+SM: Quote follow-up. Priya, you said forty per cent never get chased.
+
+PR: I want a system that tells people what to chase and when, and escalates if
+they don't. And I want a pipeline view - what's out there, what's it worth,
+what's the likelihood.
+
+SM: Weighted pipeline by probability?
+
+PR: Yes. Even a crude one would be better than what we have, which is nothing.
+
+--- 5.2 JOB SETUP, SCHEDULING AND CAPACITY ---
+
+SM: Tom, this is your area. What's the single thing that would make the biggest
+difference?
+
+TB: Knowing what's coming. If I could see, today, everything that's been quoted
+and is likely to land in the next four weeks, converted into a rough estimate
+of instrument hours and analyst hours by lab, I could actually plan.
+
+AF: So capacity forecasting driven off the pipeline, not just off confirmed work.
+
+TB: Exactly that. And I'd want to be able to say "we can't take that job in
+Warrington in that window" before we commit to a date, not after.
+
+SM: So a capacity check at the point of quoting.
+
+TB: Ideally, yes. Even a warning would do. "This job would push Warrington's
+ICP-MS over capacity in week 22."
+
+SM: Is that a must or a want?
+
+TB: [pause] I'd say the forecast view is a must. The automatic warning at quote
+stage is a want. I can live with a human looking at a screen.
+
+SM: Good, that's a useful distinction. Scheduling itself - do you want the
+system to schedule, or do you want it to help a human schedule?
+
+TB: Help a human. I've seen automatic scheduling in a lab and it was a disaster
+because it doesn't know that the mass spec is temperamental on Mondays or that
+Kevin is the only one who can get a decent result out of the older GC. Give me
+a good view and let me drag things around.
+
+AF: That's a much more achievable ask, and I'd support it. Fully automated
+scheduling in an environment with that much tacit knowledge tends to get
+overridden until people stop trusting it.
+
+TB: Thank you. Someone finally.
+
+SM: What about batching? You said batching drives cost.
+
+TB: I'd like to see, for a given test method, all the samples awaiting that test
+across all live jobs, with their due dates, so I can build an efficient batch
+without missing a deadline. That's a manual eyeball job today and we get it
+wrong.
+
+SM: Across labs, or within a lab?
+
+TB: Within a lab primarily. But there is a case for moving work between labs -
+if Bristol is drowning and Aberdeen has capacity, we should be shipping samples.
+We do that maybe once a month and it's always a phone call and a panic.
+
+SM: So inter-lab transfer as a supported process?
+
+TB: I'd like it. It's not a day one thing.
+
+--- 5.3 SAMPLE TRACKING AND CHAIN OF CUSTODY ---
+
+SM: The orphan tray. How do we kill it?
+
+TB: Sample references need to be agreed before the samples arrive. If the job is
+set up in advance with an expected sample list, and the labels are generated by
+us and sent to the customer or the sampler before they take the sample, then
+everything that arrives has our reference on it.
+
+SM: So pre-registration of expected samples, and label generation.
+
+TB: Yes. Barcode labels ideally. Then goods-in scans, and it books in against
+the job automatically.
+
+SM: What about samples that arrive that weren't expected?
+
+TB: There has to be an exception path. You can't just reject them, they're
+someone's site work and they might be irreplaceable. But it should be flagged
+and someone should have to resolve it.
+
+SM: Chain of custody. You said it must work offline and must be signable by a
+third party on site.
+
+TB: Correct. The sampler records what they took, where, when, in what container,
+under what preservation. The client rep signs to confirm. Then every subsequent
+handover - sampler to courier, courier to goods-in, goods-in to lab - gets
+recorded.
+
+AF: Is the full handover chain a legal requirement or a best practice?
+
+TB: For most environmental work it's best practice that customers demand. For
+anything that might end up in litigation - contaminated land disputes, pollution
+incidents - it's effectively mandatory, and we've had our records subpoenaed
+twice.
+
+AF: Then we treat it as mandatory. What about sample condition and temperature?
+
+TB: Yes, that's part of it. Some samples have to be kept below four degrees.
+We currently record a temperature on arrival with a probe and write it on the
+form. If a sample's out of spec we have to record that and flag it, because it
+may invalidate the result.
+
+SM: And holding times?
+
+TB: Every method has a maximum holding time from sampling to analysis. If we
+breach it, the result is qualified. I want the system to tell me when something
+is approaching its holding time limit, because right now we find out afterwards.
+
+SM: That's a strong requirement. Alerting on holding time expiry.
+
+TB: It's probably the single most valuable thing on my list after capacity.
+
+--- 5.4 RESULTS, APPROVAL AND CERTIFICATES ---
+
+SM: The second-person approval. Non-negotiable?
+
+TB: Completely non-negotiable, it's an accreditation requirement. And the
+approver has to be someone who is signed off as competent on that method, which
+means the system needs to know competency and enforce it.
+
+SM: So competency records need to move out of the quality team's spreadsheet
+and become live data.
+
+TB: Yes, and the quality team will hate that and then love it.
+
+SM: Can a result be changed after approval?
+
+TB: It can be amended, but the original has to be retained, the amendment has to
+be justified and re-approved, and any certificate we've already issued has to be
+formally superseded with a new version. We can never delete anything.
+
+AF: Full audit trail, no hard deletes, version control on issued documents.
+Understood, and that's a fairly fundamental design constraint - I'm glad we've
+got it this early.
+
+SM: Certificates. What has to be on one?
+
+TB: There's a defined content list from the accreditation standard - customer,
+sample identification, method reference, result, uncertainty where applicable,
+the accreditation mark against accredited tests only, deviations, and the
+authorising signatory. It's prescriptive.
+
+SM: Do certificate formats vary by customer?
+
+DO: Yes, unfortunately. About fifteen of our larger customers have their own
+format requirements, and three of them want us to submit results directly into
+their own systems in a specific data format.
+
+AF: That's an integration requirement, we'll pick it up in the technical
+session. Roughly how many formats?
+
+MC: Four different data formats that I know of. One of them is an industry
+standard format for environmental data, the others are bespoke.
+
+[ACTION: MC to collate examples of the four customer data export formats]
+
+SM: What about interpretation? Do you compare results to thresholds?
+
+TB: We do. For contaminated land we assess against screening values, and those
+vary by land use - residential, commercial, allotment. The customer tells us
+which to apply. We'd want that comparison automated with exceedances flagged,
+because it's done by hand now and it's error-prone.
+
+SM: Where do the screening values come from?
+
+TB: Published sources, updated periodically, plus some customers have their own.
+They'd need to be maintainable by our technical team without IT involvement.
+
+MC: Please. Yes. Anything configurable by the business, not by me.
+
+--- 5.5 CUSTOMER PORTAL AND SELF-SERVICE ---
+
+SM: Denise, this is yours. If customers could do three things themselves, what
+would you pick?
+
+DO: One - see the live status of every job and every sample. Two - download
+certificates, current and historical. Three - request a quote or place a repeat
+order without ringing us.
+
+SM: In that priority order?
+
+DO: Status first, absolutely. That's the sixty-four per cent.
+
+SM: How many customers?
+
+DO: About two thousand three hundred with activity in the last two years. But
+it's very concentrated - our top fifty customers are seventy per cent of
+revenue.
+
+SM: So a portal that serves the top fifty well is most of the value.
+
+DO: Yes, but the long tail is where most of the phone calls come from,
+proportionally. A small customer with one job rings three times about it.
+
+SM: Fair. Multiple users per customer?
+
+DO: Definitely. On a big framework there might be twenty engineers who all want
+access, and they should only see their own projects, not the whole account.
+
+AF: So a permissions model within the customer organisation. Who administers
+that - you or them?
+
+DO: Ideally them. I do not want my team creating logins.
+
+SM: What about notifications? Would a proactive email reduce the calls more than
+a portal?
+
+DO: [pause] That's a good question. Probably yes, actually. If every customer
+got an email when their samples were booked in, and another when results were
+issued, and a warning if the date was going to move, that might kill half the
+calls without anyone logging into anything.
+
+TB: The date moving one is the important one. Customers don't mind delays nearly
+as much as they mind being surprised by delays.
+
+PR: I'd rather do the notifications first and the portal second, if that's a
+choice we get to make.
+
+DO: I'd disagree slightly. Notifications don't help with the historical
+certificate requests, and those are the ones that take my team longest, because
+they involve digging through the shared drive.
+
+AF: You may not have to choose - they're often the same underlying work. But
+it's useful to know that if we had to sequence them, there's a genuine
+difference of view. Let's note that as an open decision rather than resolve it
+here.
+
+[PARKED: sequencing of proactive notifications vs full customer portal -
+decision needed at design stage]
+
+--- 5.6 REPORTING AND MANAGEMENT INFORMATION ---
+
+SM: Priya, what can't you see today that you need to?
+
+PR: Margin by job. I can see revenue by job and I can see cost at a lab level,
+but I cannot tell you which jobs made money. I strongly suspect a meaningful
+chunk of our work is loss-making and I can't prove it.
+
+SM: What would you need to capture to get there?
+
+PR: Analyst time, I suppose. Instrument time. Consumables. Subcontract costs.
+
+TB: Analyst time is going to be contentious. My people are not going to fill in
+timesheets per sample.
+
+AF: There's usually a middle ground - standard costs per test method, derived
+from a periodic time study rather than continuous capture. You lose precision
+but you gain something that's actually maintainable.
+
+TB: That I could live with.
+
+PR: That would be enough for me. I don't need it to be accounting-grade, I need
+it to be good enough to make decisions with.
+
+SM: What else?
+
+PR: Conversion rates by account manager, by customer, by test type. Turnaround
+performance by lab. Rework and repeat analysis rates - Tom, do we even know that
+number?
+
+TB: We know it per lab, roughly. It's between four and nine per cent depending
+on the lab and the method, which is itself an interesting number.
+
+PR: See, I'd never have known that. And subcontract spend, which I think is
+around two point one million and I'm not confident in that figure.
+
+SM: Who consumes these reports?
+
+PR: Me, the board monthly, the four lab managers weekly, and account managers
+should see their own numbers whenever they want.
+
+SM: Self-service or produced for them?
+
+PR: Self-service for the standard set. I don't want to be dependent on Martin
+for a chart.
+
+MC: Seconded, enthusiastically.
+
+================================================================================
+6. NON-FUNCTIONAL, SECURITY AND COMPLIANCE
+================================================================================
+
+[12:04]
+
+SM: Martin, let's come to you. Users first - how many people need access?
+
+MC: Of three hundred and forty staff, I'd say a hundred and twenty need
+meaningful access. Maybe another sixty need read-only or very light use -
+goods-in, some of the technicians. Plus twenty-five field samplers who are
+mobile-only.
+
+SM: And customer-side users?
+
+DO: If the portal happens, potentially a few thousand, but realistically a few
+hundred active.
+
+SM: Mobile requirement - is it phones, tablets, or ruggedised devices?
+
+TB: Ruggedised tablets for the samplers. They're on construction sites in the
+rain. And offline is non-negotiable - I'd say thirty to forty per cent of our
+sampling sites have no usable data connection.
+
+AF: How long might a device be offline?
+
+TB: A full day is normal. Two days happens - if someone's doing a remote site in
+Scotland they might be out Monday and back Tuesday night.
+
+AF: So a full working day of offline capture minimum, with conflict handling on
+sync. That's a significant technical requirement and I want to flag it as one of
+the bigger risk areas.
+
+SM: Security and confidentiality?
+
+PR: All customer data is commercially confidential. Beyond that, we do a small
+amount of defence-related work - maybe two per cent of revenue - where the
+customer requires that only named, security-cleared individuals can see the job
+and the results. That currently sits in a locked filing cabinet and a separate
+folder with restricted permissions.
+
+AF: So record-level restriction with an explicit access list, not just role
+based.
+
+PR: Yes. And it has to be auditable - we get asked to demonstrate who has
+accessed what.
+
+SM: Data retention?
+
+TB: Ten years minimum for accredited test records, that's the standard. We
+actually keep everything indefinitely because we've been burned by a
+fifteen-year-old contaminated land dispute.
+
+MC: Which is why the shared drive is eleven terabytes.
+
+SM: Data migration - what has to come across?
+
+MC: That's the question I've been dreading. My view is: all customers and
+contacts, all live and recent jobs, and then certificates as documents for
+history. I don't think we can migrate eleven years of granular sample-level data
+from two lab systems and two sets of spreadsheets.
+
+TB: We might have to for the last three years. Customers ask for trend analysis
+across their historical monitoring data and we can't lose that.
+
+MC: Then we need to scope that properly, because those two lab systems store it
+completely differently.
+
+AF: Agreed, and this is exactly the kind of thing that quietly doubles a project
+if it isn't nailed down early. Let's make data migration a dedicated workstream
+with its own discovery.
+
+[PARKED: data migration scope - dedicated session required, MC and TB to lead]
+
+SM: Availability expectations?
+
+TB: The labs run six till ten, Monday to Friday, and Saturday mornings in
+Warrington. If the system is down during those hours, work stops.
+
+MC: I'd want ninety-nine point five per cent within business hours as a
+starting position, and a defined maintenance window outside them.
+
+AF: Disaster recovery?
+
+MC: We've never properly tested ours, which I'm saying out loud so it's in the
+transcript. I'd want a recovery point of no more than an hour and recovery time
+of no more than four hours for anything that stops the labs working.
+
+SM: Support model? You said four people in IT.
+
+MC: Four including the service desk, and one of those is a shared resource with
+finance. We cannot own day-to-day administration of this. I need it to be either
+largely self-administering or supported by a partner.
+
+PR: We've budgeted for a managed service, that was in the board paper.
+
+SM: What about training and change? Three hundred and forty staff across four
+sites is a substantial change effort.
+
+PR: I know. And honestly this is where I think we're weakest. We've got no
+internal change capability at all.
+
+TB: The lab staff have been through two system changes in six years and both
+were done badly. There is real fatigue. If we turn up and say "here's your new
+system, good luck", it will fail.
+
+AF: Then change management needs to be a funded workstream in the proposal, not
+a line item at the end. I'd rather tell you that now than have it appear as a
+surprise.
+
+PR: Please do put it in. I'd rather defend a bigger number than deliver a
+failure.
+
+================================================================================
+7. CONSTRAINTS, TIMELINE, ACTIONS AND NEXT STEPS
+================================================================================
+
+[12:21]
+
+SM: Constraints. What can't change?
+
+MC: The finance system stays. It was replaced two years ago, it works, nobody
+has the appetite. Whatever we do has to integrate with it, not replace it.
+
+PR: Agreed, finance is out of scope. So is HR and payroll.
+
+TB: The instruments stay obviously. Some of them can output data files, some of
+them are twenty years old and output a printout. So there'll be a mix of
+automated capture and manual entry and we have to accept that.
+
+SM: Timeline?
+
+PR: The board want something demonstrable within this financial year, which ends
+in March. My honest position is that I'd rather have Warrington live and working
+properly by March than all four labs live and broken.
+
+AF: That's the right instinct and I'd strongly support a phased approach. Would
+you consider going live with a subset of function across one lab, rather than
+full function?
+
+PR: Yes. If I had quoting and job setup working in Warrington by March, and it
+was genuinely better than what we have, that would be a win I could sell.
+
+TB: I'd want sample tracking in that first phase too. Quoting without tracking
+just moves the problem downstream.
+
+PR: Noted. That's a conversation for the roadmap.
+
+SM: Budget - are you able to share a range?
+
+PR: The board have approved a business case with a capital envelope and a
+three-year running cost. I'd rather not put the number in the room today, but I
+will share it with Alex separately before you build the estimate, because I
+don't want you designing something we can't afford.
+
+AF: That's helpful and fairly unusual, thank you. It genuinely does change what
+we propose.
+
+SM: Anything anyone wants to raise that we haven't covered?
+
+DO: One thing. Whatever we build, my team need to be able to answer a customer's
+question in one screen. Not four. That's a small thing but it's the difference
+between this working and not.
+
+TB: And it has to be fast. If a screen takes eight seconds to load, my analysts
+will stop using it and go back to paper within a fortnight. I've watched it
+happen.
+
+AF: Both of those are legitimate requirements and we'll write them down as such.
+
+MC: Mine is: please don't build something that only works if IT is perfect.
+We're four people.
+
+PR: And mine is that I want to be able to answer the question "how are we doing"
+without asking three people and waiting a week.
+
+--- ACTIONS ---
+
+  A1  DO   Send call-reason analysis from Oct 2025 two-week sample.     By 18 Apr
+  A2  TB   Document quote routing rules with technical team.            By 28 Apr
+  A3  MC   Collate examples of four customer data export formats.       By 21 Apr
+  A4  PR   Share budget envelope with AF separately.                    By 17 Apr
+  A5  MC   Provide inventory of current systems, versions, data volumes.By 21 Apr
+  A6  TB   Provide list of test methods and current turnaround targets. By 28 Apr
+  A7  SM   Circulate draft notes from this session for correction.      By 16 Apr
+  A8  AF   Propose dates for sessions 2-4.                              By 16 Apr
+
+--- PARKED ITEMS ---
+
+  P1  Framework volume rebate calculation - in or out of scope?
+  P2  Sequencing: proactive notifications vs full customer portal
+  P3  Data migration scope - dedicated discovery session required
+  P4  Inter-lab sample transfer process
+  P5  Equipment calibration and maintenance records - not discussed today
+  P6  Subcontractor lab management - mentioned but not explored
+  P7  Dublin entity - integrate now or later?
+  P8  Potential Netherlands acquisition - design implications
+
+[12:29]
+
+AF: That's time. Thank you all, that was a genuinely productive three hours -
+we've got more than enough to work with and, more importantly, we've surfaced
+two or three things that would have bitten us later. Sofia will circulate notes
+by Thursday. Please do correct them; the version you sign off is the version we
+build from.
+
+PR: Thanks both.
+
+TB: Yes, thank you. I'll reserve final judgement.
+
+AF: As you should.
+
+[END OF RECORDING - 12:30]
+
+================================================================================
+NOTE: This is a fictitious transcript. Calder Analytical Services Ltd, Merrow
+Bridge Consulting, and all individuals named are invented for testing purposes.
+Any resemblance to real organisations or people is coincidental.
+================================================================================

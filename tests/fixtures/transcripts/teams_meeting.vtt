@@ -1,0 +1,25 @@
+WEBVTT
+
+76d1a2f0-0001-4f00-9f00-000000000001/1-0
+00:00:03.120 --> 00:00:07.480
+<v Rowan Ellisdale>Morning both, thanks for joining.</v>
+
+76d1a2f0-0001-4f00-9f00-000000000002/1-0
+00:00:07.480 --> 00:00:12.900
+<v Rowan Ellisdale>This is the follow up on service operations.</v>
+
+76d1a2f0-0001-4f00-9f00-000000000003/1-0
+00:00:13.400 --> 00:00:19.010
+<v Kaya Petrov>The thing we need is offline capture on the mobile app.</v>
+
+76d1a2f0-0001-4f00-9f00-000000000004/1-0
+00:00:19.010 --> 00:00:26.220
+<v Kaya Petrov>A third of our sites have no usable data connection and that is not going to change.</v>
+
+76d1a2f0-0001-4f00-9f00-000000000005/1-0
+00:00:26.800 --> 00:00:34.150
+<v Idris Vance>Understood, that is a significant technical requirement and I want to flag it as one of the bigger risk areas.</v>
+
+76d1a2f0-0001-4f00-9f00-000000000006/1-0
+00:00:34.600 --> 00:00:41.000
+<v Rowan Ellisdale>Agreed, and the billing system stays so whatever we build has to integrate with it.</v>

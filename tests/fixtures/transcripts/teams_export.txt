@@ -1,0 +1,35 @@
+Rowan Ellisdale   0:04
+Morning both, thanks for joining. This is the follow-up on service operations.
+
+Kaya Petrov   0:11
+Morning. I have got about forty minutes before my next one.
+
+Rowan Ellisdale   0:18
+That is fine. The main thing I need is a decision on scheduling.
+
+Idris Vance   0:26
+Let me summarise where we got to. You want assisted scheduling rather than
+automatic, and competency has to be live data rather than a spreadsheet.
+
+Rowan Ellisdale   0:41
+Correct. And it is non-negotiable that an engineer cannot be assigned to an
+asset they are not signed off on.
+
+Kaya Petrov   0:55
+The other thing we need is offline capture on the mobile app. A third of our
+sites have no usable data connection and that is not going to change.
+
+Idris Vance   1:09
+Understood. That is a significant technical requirement and I want to flag it
+as one of the bigger risk areas.
+
+Rowan Ellisdale   1:20
+Agreed. Also the billing system stays, so whatever we build has to integrate
+with it rather than replace it.
+
+Kaya Petrov   1:33
+Ideally we would also have customer notifications, but I accept that might be
+a phase two.
+
+Idris Vance   1:44
+I will write that up as an open decision. Thanks both.

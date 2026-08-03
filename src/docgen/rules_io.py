@@ -1,4 +1,4 @@
-"""Loading of rules YAML files (licensing / deprecations / naming).
+"""Loading of rules YAML files (licensing / deprecations / naming / transcript cues).
 
 Defaults ship inside the package; a file of the same name in the configured
 `rules_dir` fully replaces the shipped one (no merging semantics).
@@ -13,7 +13,7 @@ import yaml
 
 from docgen.config import DocgenConfig
 
-RULE_FILES = ("licensing", "deprecations", "naming")
+RULE_FILES = ("licensing", "deprecations", "naming", "transcript_cues")
 
 
 def load_rules(cfg: DocgenConfig) -> dict[str, dict]:

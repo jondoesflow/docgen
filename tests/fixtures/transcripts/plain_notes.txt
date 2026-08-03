@@ -1,0 +1,8 @@
+Rowan: The billing system stays and whatever we build has to integrate with it.
+
+Kaya: Offline capture is mandatory because a third of our sites have no usable
+data connection.
+
+[ACTION: Kaya to send the call-reason tagging analysis]
+
+Idris: I want to flag the offline requirement as one of the bigger risk areas.

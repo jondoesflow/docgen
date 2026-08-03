@@ -157,6 +157,114 @@ def test_redactor_no_rules_logs_cleanly(tmp_path: Path):
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Transcript narrative: attribution is the ground truth
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def workshop():
+    from docgen.config import DocgenConfig as _Config
+    from docgen.rules_io import load_rules
+    from docgen.transcripts import parse_transcript
+
+    cues = load_rules(_Config()).get("transcript_cues", {})
+    return parse_transcript(Path(__file__).parent / "fixtures" / "transcripts" / "workshop.txt", cues)
+
+
+@pytest.fixture(scope="module")
+def people(workshop):
+    from docgen.llm.validate import collect_participant_names
+
+    return collect_participant_names(workshop)
+
+
+def test_participant_names_cover_every_form(people):
+    for expected in ("rowan ellisdale", "rowan", "ellisdale", "re", "kaya petrov", "idris vance"):
+        assert expected in people
+
+
+def test_attribution_to_a_real_participant_passes(people):
+    from docgen.llm.validate import find_attribution_violations
+
+    text = ("Rowan Ellisdale set out the visibility problem, and Kaya Petrov raised the "
+            "volume of status calls. According to Idris Vance, offline capture is the "
+            "larger technical risk.")
+    assert find_attribution_violations(text, people) == []
+
+
+def test_attribution_to_someone_not_in_the_meeting_is_rejected(people):
+    """The transcript equivalent of the invented-component test: prose may not put
+    words in the mouth of somebody who was not in the room."""
+    from docgen.llm.validate import find_attribution_violations
+
+    text = "Rowan Ellisdale set out the drivers, and Harriet Wolstenholme confirmed the budget."
+    assert find_attribution_violations(text, people) == ["Harriet Wolstenholme"]
+
+
+def test_prose_without_attribution_is_never_flagged(people):
+    from docgen.llm.validate import find_attribution_violations
+
+    text = ("The session covered scheduling, notifications and constraints. The billing "
+            "system stays in place and must be integrated with rather than replaced.")
+    assert find_attribution_violations(text, people) == []
+
+
+def test_transcript_provider_retries_then_falls_back(workshop, tmp_path: Path):
+    from docgen.llm import make_transcript_narrative_provider
+
+    client = FakeClient([
+        "Harriet Wolstenholme confirmed the scope.",
+        "Ingrid Halloway confirmed the scope.",
+    ])
+    provider = make_transcript_narrative_provider(workshop, DocgenConfig(), tmp_path, client=client)
+    assert provider("meeting_summary", {"sections": []}) is None
+    assert len(client.calls) == 2
+    assert "Harriet Wolstenholme" in client.calls[1][1]  # retry names the violation
+
+
+def test_transcript_provider_returns_valid_prose(workshop, tmp_path: Path):
+    from docgen.llm import make_transcript_narrative_provider
+
+    client = FakeClient(["Rowan Ellisdale set out the visibility problem."])
+    provider = make_transcript_narrative_provider(workshop, DocgenConfig(), tmp_path, client=client)
+    assert provider("meeting_summary", {}) == "Rowan Ellisdale set out the visibility problem."
+
+
+def test_transcript_payload_is_redacted_before_sending(workshop, tmp_path: Path):
+    """A transcript is almost entirely client names — redaction must apply here too."""
+    from docgen.llm import make_transcript_narrative_provider
+
+    redact_file = tmp_path / "redact.yaml"
+    redact_file.write_text(
+        "replacements:\n  - match: 'Northgate Utilities plc'\n    replace: 'ClientA'\n",
+        encoding="utf-8",
+    )
+    cfg = DocgenConfig(redact_file=redact_file)
+    client = FakeClient(["ClientA runs field maintenance across the region."])
+    provider = make_transcript_narrative_provider(workshop, cfg, tmp_path, client=client)
+    prose = provider("meeting_summary", {"client": "Northgate Utilities plc"})
+
+    sent = client.calls[0][1]
+    assert "Northgate Utilities plc" not in sent and "ClientA" in sent
+    assert prose == "Northgate Utilities plc runs field maintenance across the region."
+
+
+def test_rendered_meeting_notes_use_llm_narrative_when_valid(workshop, tmp_path: Path, monkeypatch):
+    from docgen.commands import render_transcript_documents
+
+    def fake_provider_factory(snapshot, cfg, out_dir):
+        return lambda purpose, payload: "Rowan Ellisdale set out the drivers for change."
+
+    import docgen.llm
+
+    monkeypatch.setattr(docgen.llm, "make_transcript_narrative_provider", fake_provider_factory)
+    render_transcript_documents(workshop, ["meeting-notes"], ["md"], tmp_path,
+                                DocgenConfig(), no_llm=False)
+    text = (tmp_path / "meeting-notes.md").read_text(encoding="utf-8")
+    assert "Rowan Ellisdale set out the drivers for change." in text
+
+
 def test_rendered_hld_uses_llm_narrative_when_valid(rich, tmp_path: Path, monkeypatch):
     calls = {"n": 0}
 

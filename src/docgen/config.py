@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-from docgen.constants import ALL_DOC_KEYS, ALL_FORMATS
+from docgen.constants import ALL_DOC_KEYS, ALL_FORMATS, ALL_TRANSCRIPT_DOC_KEYS
 
 
 class ConfigError(ValueError):
@@ -43,8 +43,12 @@ class DocgenConfig(BaseModel):
 
     output_dir: Path = Path("out")
     default_docs: list[str] = Field(default_factory=lambda: list(ALL_DOC_KEYS))
+    default_transcript_docs: list[str] = Field(default_factory=lambda: list(ALL_TRANSCRIPT_DOC_KEYS))
     formats: list[str] = Field(default_factory=lambda: list(ALL_FORMATS))
     docx_template: Path | None = None
+    # Folder of per-document Word templates (HLD.docx, LLD.docx, ...). Defaults to
+    # ./templates; a missing folder simply means no per-document templates.
+    templates_dir: Path | None = Path("templates")
     rules_dir: Path | None = None
     redact_file: Path | None = None
     llm: LLMConfig = Field(default_factory=LLMConfig)

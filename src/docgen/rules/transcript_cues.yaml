@@ -1,0 +1,473 @@
+# Cue phrases that seed requirements, decisions and RRAID entries from a
+# meeting transcript. Every match keeps the verbatim sentence as evidence —
+# these rules decide what to *surface*, never what to *claim*.
+#
+# All patterns are case-insensitive regexes matched against a single sentence.
+# Override this file by placing a transcript_cues.yaml in the configured
+# rules_dir (it replaces this one wholesale; there is no merging).
+version: 1
+
+# --------------------------------------------------------------------------
+# Requirements
+# --------------------------------------------------------------------------
+
+# A sentence becomes a requirement candidate when it matches any of these.
+requirement_cues:
+  - "\\bwe need\\b"
+  - "\\bI need\\b"
+  - "\\bneeds? to (?:be|have|work|know|tell|come|move|happen|enforce|support)\\b"
+  - "\\bneed (?:a|an|the|to|that|it|them)\\b"
+  - "\\brequire(?:s|d)?\\b"
+  - "\\brequirement\\b"
+  - "\\bI want\\b"
+  - "\\bwe want\\b"
+  - "\\bI'd want\\b"
+  - "\\bwe'd want\\b"
+  - "\\bI would want\\b"
+  - "\\bI'd like\\b"
+  - "\\bwe'd like\\b"
+  - "\\bI would like\\b"
+  - "\\bmust\\b"
+  - "\\bhas to\\b"
+  - "\\bhave to\\b"
+  - "\\bthere has to be\\b"
+  - "\\bshould (?:be|have|apply|go|come|only|tell|see|stop|happen|not)\\b"
+  - "\\bideally\\b"
+  - "\\bnon-negotiable\\b"
+  - "\\bmandatory\\b"
+  - "\\benforced\\b"
+  - "\\bable to\\b"
+  - "\\bwould be better\\b"
+  - "\\bit's a must\\b"
+  - "\\bit's a want\\b"
+
+# Sentences matching any of these are never treated as requirements — they are
+# meeting mechanics, hedges or facilitator scaffolding.
+requirement_exclusions:
+  - "^(?:thanks|thank you|morning|good morning|sorry|yes|no|correct|agreed|noted)\\b"
+  - "\\bI'd need to check\\b"
+  - "\\bneed to check\\b"
+  - "\\bcirculate\\b"
+  - "\\bnext steps\\b"
+  - "\\bnote-taking\\b"
+  - "\\bfor the benefit of the recording\\b"
+  - "\\bground rules\\b"
+  - "\\bwe'll come back to it\\b"
+  - "\\byou'll (?:start|need to) describ\\w+\\b"
+  # facilitator discourse ("I want to walk through…") is about the meeting, not the system
+  - "\\b(?:I|we) (?:just )?want(?:ed)? to (?:walk|know|go|hear|understand|ask|check|come|pick|start|dig|flag|push)\\b"
+  - "\\bI'd like to (?:walk|know|go|hear|understand|ask|check|come|start|dig)\\b"
+
+# Evaluated in order; first match wins. Anything unmatched is "unclassified".
+priority_cues:
+  - priority: must
+    patterns:
+      - "\\bnon-negotiable\\b"
+      - "\\bnon negotiable\\b"
+      - "\\bmandatory\\b"
+      - "\\bhard requirement\\b"
+      - "\\bit's a must\\b"
+      - "\\bis a must\\b"
+      - "\\baccreditation requirement\\b"
+      - "\\blegal(?:ly)? (?:requirement|required|defensible)\\b"
+      - "\\bwe can never\\b"
+      - "\\bcan't release\\b"
+      - "\\bmust\\b"
+      - "\\bhas to\\b"
+      - "\\bhave to\\b"
+      - "\\bthere has to be\\b"
+  - priority: wont
+    patterns:
+      - "\\bout of scope\\b"
+      - "\\bnot in scope\\b"
+      - "\\bnot for day one\\b"
+      - "\\bphase two\\b"
+      - "\\bphase 2\\b"
+  - priority: could
+    patterns:
+      - "\\bideally\\b"
+      - "\\bnice to have\\b"
+      - "\\bwould be nice\\b"
+      - "\\bwould be better\\b"
+      - "\\bit's a want\\b"
+      - "\\bis a want\\b"
+      - "\\bI'd like\\b"
+      - "\\bwe'd like\\b"
+      - "\\bnot a day one thing\\b"
+      - "\\beven a crude one\\b"
+      - "\\bmight\\b"
+  - priority: should
+    patterns:
+      - "\\bwe need\\b"
+      - "\\bI need\\b"
+      - "\\bneeds? to\\b"
+      - "\\bI want\\b"
+      - "\\bwe want\\b"
+      - "\\bI'd want\\b"
+      - "\\bwe'd want\\b"
+      - "\\bshould\\b"
+      - "\\brequire(?:s|d)?\\b"
+      - "\\benforced\\b"
+
+# Sentence-level classification of requirement kind. functional is the default.
+kind_cues:
+  non_functional:
+    - "\\boffline\\b"
+    - "\\bno (?:usable )?(?:data )?connection\\b"
+    - "\\bno signal\\b"
+    - "\\bavailab(?:le|ility)\\b"
+    - "\\buptime\\b"
+    - "\\bper cent within business hours\\b"
+    - "\\bdisaster recovery\\b"
+    - "\\brecovery (?:point|time)\\b"
+    - "\\bperformance\\b"
+    - "\\bseconds to load\\b"
+    - "\\bhas to be fast\\b"
+    - "\\bsecurity\\b"
+    - "\\bsecurity-cleared\\b"
+    - "\\bconfidential\\b"
+    - "\\baudit(?:able|ed|ing)?\\b"
+    - "\\bretention\\b"
+    - "\\bretain(?:ed)?\\b"
+    - "\\bmobile-only\\b"
+    - "\\bruggedised\\b|\\bruggedized\\b"
+    - "\\btablets?\\b"
+    - "\\bsupport model\\b"
+    - "\\bmanaged service\\b"
+    - "\\btraining\\b"
+    - "\\bchange management\\b"
+    - "\\bself-administering\\b"
+    - "\\bpermissions? model\\b"
+    - "\\brecord-level\\b"
+    - "\\bmaintainable by\\b"
+    - "\\bwithout IT involvement\\b"
+    - "\\bconfigurable by the business\\b"
+  constraint:
+    - "\\bout of scope\\b"
+    - "\\bnot in scope\\b"
+    - "\\bstays\\b"
+    - "\\bcannot be the ones\\b"
+    - "\\bwe cannot\\b"
+    - "\\bbudget\\b"
+    - "\\bcapital envelope\\b"
+    - "\\bfinancial year\\b"
+    - "\\bboard (?:want|approved|have approved)\\b"
+    - "\\bhas to integrate with it, not replace\\b"
+
+# Falls back to the enclosing section title when the sentence itself is neutral.
+section_kind_hints:
+  non_functional:
+    - "non-functional"
+    - "security"
+    - "compliance"
+    - "technical"
+    - "infrastructure"
+  constraint:
+    - "constraint"
+    - "timeline"
+    - "budget"
+    - "next steps"
+
+# --------------------------------------------------------------------------
+# Decisions
+# --------------------------------------------------------------------------
+
+decision_cues:
+  - "\\bthen we treat (?:it|that) as\\b"
+  - "\\bwe(?:'ll| will) treat (?:it|that) as\\b"
+  - "\\bwe treat it as\\b"
+  - "\\bagreed\\b"
+  - "\\bthat's agreed\\b"
+  - "\\bthat should be a measure\\b"
+  - "\\bis out of scope\\b"
+  - "\\bare out of scope\\b"
+  - "\\blet's (?:make|note|treat|call|park)\\b"
+  - "\\bwe'll (?:make|take|park|note|write) \\b"
+  - "\\bdecided\\b"
+  - "\\bthe decision is\\b"
+  - "\\bduly noted\\b"
+  - "\\bunderstood, and that's\\b"
+  - "\\bI'd strongly support\\b"
+  - "\\bwe're deliberately\\b"
+  - "\\bneeds to be a funded workstream\\b"
+  - "\\bplease do put it in\\b"
+
+# --------------------------------------------------------------------------
+# RRAID seeds
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Design-stage material
+#
+# The pre-build HLD, LLD, data dictionary, security model, deployment register,
+# licensing view and integration design are assembled from the groups below.
+# Each one only ever *surfaces* a sentence somebody said — the design decision
+# itself stays with the consultant (or the LLM tier).
+# --------------------------------------------------------------------------
+
+# Candidate business objects. Repeated noun phrases are counted across the
+# transcript; the ones the client keeps saying are the ones worth modelling.
+data_objects:
+  min_mentions: 3
+  max_words: 3
+  # Never a business object however often it is said.
+  exclusions:
+    - "^(?:thing|things|point|points|way|ways|bit|bits|lot|lots|kind|sort|side|end|time|times)$"
+    - "^(?:question|questions|answer|answers|session|sessions|meeting|meetings|note|notes)$"
+    - "^(?:problem|problems|issue|issues|reason|reasons|case|cases|number|numbers)$"
+    - "^(?:course|fact|sense|idea|view|position|conversation|discussion)$"
+    # workshop vocabulary about the workshop, not about the business
+    - "^(?:requirements?|scope|priority|priorities|assumption|assumptions|action|actions)$"
+    # verbs that survive the function-word filter
+    - "^(?:happens?|happened|arrives?|arrived|becomes?|remains?|involves?|includes?|depends?)$"
+    - "^(?:starts?|started|ends?|ended|continues?|carries|carried|handles?|handled)$"
+    - "^(?:per cent|cent|year|years|month|months|week|weeks|day|days|hour|hours|minute|minutes)$"
+    - "\\b(?:think|know|want|need|say|said|mean|going|doing|getting|looking)\\b"
+  # Words that, next to a candidate, hint at an attribute rather than an object.
+  attribute_hints:
+    - "reference"
+    - "number"
+    - "date"
+    - "status"
+    - "type"
+    - "code"
+    - "name"
+    - "value"
+    - "price"
+    - "rate"
+    - "description"
+    - "condition"
+    - "temperature"
+    - "signature"
+    - "version"
+    - "owner"
+
+# External systems, stores and channels named in the room. Each pattern must
+# expose a named group `system`.
+system_cues:
+  # "<business word> system" — the qualifier list keeps filler like
+  # "been through two system[s]" out of the interface inventory.
+  - "\\b(?P<system>(?:finance|financial|accounting|accounts|billing|invoicing|payroll|HR|lab|laboratory|quality|document|records?|inventory|scheduling|ticketing|case|legacy|source|target|host|booking|ordering|purchasing|warehouse|logistics|CRM|ERP)\\s+(?:information\\s+|management\\s+)?systems?)\\b"
+  - "\\b(?P<system>lab(?:oratory)? information (?:management )?systems?)\\b"
+  - "\\b(?P<system>LIMS|ERP|CRM|SAP|Dynamics|Salesforce|Sage|Xero|SharePoint|SQL Server|Power BI|Excel|Outlook)\\b"
+  - "\\b(?P<system>tender portals?|customer portals?|supplier portals?|shared drives?|spreadsheets?|whiteboards?|filing cabinets?)\\b"
+  - "\\bintegrate with (?:the\\s+)?(?P<system>[a-z]{3,18}(?:\\s[a-z]{3,18}){0,2})\\b"
+  - "\\b(?:export to|import from|feed into|interface (?:to|with)) (?:the\\s+)?(?P<system>[a-z]{3,18}(?:\\s[a-z]{3,18}){0,2})\\b"
+  - "\\b(?P<system>instruments?|couriers?|barcode (?:labels?|scanners?|printers?)|mobile apps?|ruggedised tablets?)\\b"
+
+# Statements worth quoting in a specific design document. Every group becomes a
+# table of verbatim statements with the speaker and line; add your own freely.
+statement_groups:
+  user_population:
+    label: User population and access volumes
+    patterns:
+      - "\\b(?:need|needs|require[sd]?)\\s+(?:meaningful\\s+)?access\\b"
+      - "\\b\\d[\\d,]*\\s+(?:staff|users|people|engineers|analysts|samplers|customers|contacts)\\b"
+      - "\\b(?:staff|users|people|engineers|analysts|samplers|customers|contacts|logins?)\\b.{0,40}\\b(?:need|needs|access|read-only|mobile-only)\\b"
+      - "\\bof (?:three|four|five|six|seven|eight|nine|ten|two)\\s+hundred\\b"
+      - "\\bmobile-only\\b"
+      - "\\bmultiple users per\\b"
+      - "\\ba few (?:thousand|hundred)\\b"
+  access_control:
+    label: Access control and confidentiality
+    patterns:
+      - "\\bcommercially confidential\\b"
+      - "\\bsecurity-cleared\\b"
+      - "\\bonly (?:named|specific|certain)\\b"
+      - "\\brecord-level\\b"
+      - "\\bexplicit access list\\b"
+      - "\\bpermissions? model\\b"
+      - "\\bonly see their own\\b"
+      - "\\bwho has accessed what\\b"
+      - "\\baudit(?:able|ed|ing)?\\b"
+      - "\\bsigned off as competent\\b"
+      - "\\bsecond-person approval\\b"
+      - "\\brestricted permissions\\b"
+      - "\\bwho administers\\b"
+  availability:
+    label: Availability, performance and recovery
+    patterns:
+      - "\\bavailab(?:le|ility)\\b"
+      - "\\bper cent within business hours\\b"
+      - "\\bmaintenance window\\b"
+      - "\\bdisaster recovery\\b"
+      - "\\brecovery (?:point|time)\\b"
+      - "\\bif the system is down\\b"
+      - "\\bseconds to load\\b"
+      - "\\bhas to be fast\\b"
+      - "\\bruns? six till ten\\b"
+  retention:
+    label: Retention, audit and record-keeping
+    patterns:
+      - "\\bretention\\b"
+      - "\\bten years\\b"
+      - "\\bkeep everything\\b"
+      - "\\bindefinitely\\b"
+      - "\\bnever delete\\b"
+      - "\\boriginal has to be retained\\b"
+      - "\\bformally superseded\\b"
+      - "\\bfull audit trail\\b"
+      - "\\bno hard deletes\\b"
+      - "\\bsubpoenaed\\b"
+  data_migration:
+    label: Data migration
+    patterns:
+      - "\\bdata migration\\b"
+      - "\\bmigrat(?:e|ed|ing|ion)\\b"
+      - "\\bhas to come across\\b"
+      - "\\bhistorical (?:monitoring )?data\\b"
+      - "\\bcertificates as documents for history\\b"
+      - "\\beleven (?:years|terabytes)\\b"
+  environment:
+    label: Environments, sites and infrastructure
+    patterns:
+      - "\\b(?:four|three|two)\\s+laborator(?:y|ies)\\b"
+      - "\\bseparate legal entity\\b"
+      - "\\bdifferent VAT treatment\\b"
+      - "\\bcompletely different systems\\b"
+      - "\\bmanaged service\\b"
+      - "\\bself-administering\\b"
+      - "\\bsupported by a partner\\b"
+      - "\\bcannot (?:be the ones|own) \\b"
+      - "\\bfour (?:of us )?in IT\\b"
+      - "\\bruggedised\\b|\\bruggedized\\b"
+      - "\\boffline\\b"
+  support_model:
+    label: Support, training and change
+    patterns:
+      - "\\bsupport model\\b"
+      - "\\bservice desk\\b"
+      - "\\btraining\\b"
+      - "\\bchange (?:management|capability)\\b"
+      - "\\bfatigue\\b"
+      - "\\bfunded workstream\\b"
+      - "\\bday-to-day administration\\b"
+  licensing_signal:
+    label: Commercial and licensing signals
+    patterns:
+      - "\\bcustomer portal\\b"
+      - "\\bself-serve\\b"
+      - "\\bportal happens\\b"
+      - "\\bexternal users\\b"
+      - "\\ba few (?:thousand|hundred) (?:active)?\\b"
+      - "\\bmobile(?:-only)?\\b"
+      - "\\boffline capture\\b"
+      - "\\bsubmit results directly into their own systems\\b"
+      - "\\bindustry standard format\\b"
+      - "\\bself-service for the standard set\\b"
+      - "\\breporting\\b"
+      - "\\bmanaged service\\b"
+  scope_out:
+    label: Explicitly out of scope
+    patterns:
+      - "\\bout of scope\\b"
+      - "\\bnot in scope\\b"
+      - "\\bstays\\b"
+      - "\\bnobody has the appetite\\b"
+      - "\\bphase two\\b"
+      - "\\bnot a day one thing\\b"
+  process_step:
+    label: Current-state process steps
+    patterns:
+      - "\\benquir(?:y|ies) come in\\b"
+      - "\\bthen (?:it|they|we|the) \\w+ (?:goes|go|gets|get|arrives|arrive)\\b"
+      - "\\bgets? (?:produced|booked|scheduled|raised|issued|filed|emailed)\\b"
+      - "\\bbooks? them in\\b"
+      - "\\bgoes for technical check\\b"
+      - "\\bthat's where my world starts\\b"
+      - "\\binvoicing is\\b"
+
+finding_cues:
+  risk:
+    - "\\bI want to flag\\b"
+    - "\\bflag (?:it|this|that) as\\b"
+    - "\\bwant to flag it\\b"
+    - "\\brisk area\\b"
+    - "\\brisks?\\b"
+    # "a concern" / "concerned about", never "as far as the lab's concerned"
+    - "\\b(?:a|the|my|our|real|genuine|main|big|biggest) concern\\b"
+    - "\\bconcerned about\\b"
+    - "\\b(?:I'm|we're|they're) concerned\\b"
+    - "\\bkeeps me up at night\\b"
+    - "\\bit will fail\\b"
+    - "\\bfatigue\\b"
+    - "\\bdone badly\\b"
+    - "\\bdreading\\b"
+    - "\\bquietly doubles\\b"
+    - "\\bnever properly tested\\b"
+    - "\\bbeen burned\\b"
+    - "\\bnightmare\\b"
+    - "\\bwas a disaster\\b"
+    - "\\bwhere I think we're weakest\\b"
+    - "\\bno internal change capability\\b"
+    - "\\bsignificant technical requirement\\b"
+    - "\\bwill stop using it\\b"
+  assumption:
+    - "\\bI assume\\b"
+    - "\\bassuming\\b"
+    - "\\bpresumably\\b"
+    - "\\bI'd expect\\b"
+    - "\\bmy view is\\b"
+    - "\\bmy honest position\\b"
+    - "\\bI suspect\\b"
+    - "\\bwe think\\b"
+    - "\\bI think .{0,40}\\b(?:is|are) (?:around|about|roughly)\\b"
+    - "\\bnot confident in\\b"
+    - "\\bI'm not confident\\b"
+    - "\\bit's a feel\\b"
+    - "\\bI genuinely don't know\\b"
+    - "\\bI don't think we can\\b"
+  issue:
+    - "\\bfalls? apart\\b"
+    - "\\bgoes wrong\\b"
+    - "\\bwrote off\\b"
+    - "\\bunbillable\\b"
+    - "\\bnegative margin\\b"
+    - "\\bblew the deadline\\b"
+    - "\\berror-prone\\b"
+    - "\\b(?:a bit of )?a mess\\b"
+    - "\\bit drifts\\b"
+    - "\\band it drifts\\b"
+    - "\\bnobody looks at it\\b"
+    - "\\bwe get it wrong\\b"
+    - "\\bno formal\\b"
+    - "\\bthere's no record\\b"
+    - "\\bno way of knowing\\b"
+    - "\\bwe have no line of sight\\b"
+    - "\\bcannot self-serve\\b"
+    - "\\bwe've lost\\b"
+    - "\\bnever get (?:chased|followed up)\\b"
+    - "\\borphan tray\\b"
+    - "\\bcompletely different systems\\b"
+    - "\\bnever properly integrated\\b"
+  dependency:
+    - "\\bdepends? on\\b"
+    - "\\bdependent on\\b"
+    - "\\bintegrate with\\b"
+    - "\\bhas to integrate\\b"
+    - "\\bwe'll pick (?:it|this|that) up in\\b"
+    - "\\bin the technical session\\b"
+    - "\\bdedicated (?:session|workstream|discovery)\\b"
+    - "\\bseparate session\\b"
+    - "\\bneeds? to be scoped\\b"
+    - "\\bscope that properly\\b"
+    - "\\bwe'll need to\\b"
+    - "\\bwaiting on\\b"
+    - "\\bsubject to\\b"
+    - "\\bfunded workstream\\b"
+    - "\\bconfirm scope\\b"
+  constraint:
+    - "\\bout of scope\\b"
+    - "\\bnot in scope\\b"
+    - "\\bstays\\b"
+    - "\\bwe cannot be the ones\\b"
+    - "\\bwe cannot own\\b"
+    - "\\bcan't change\\b"
+    - "\\bnobody has the appetite\\b"
+    - "\\bcapital envelope\\b"
+    - "\\bthree-year running cost\\b"
+    - "\\bfinancial year\\b"
+    - "\\bwe're four people\\b"
+    - "\\bfour of us in IT\\b"
+    - "\\bseparate legal entity\\b"
+    - "\\bdifferent VAT treatment\\b"
