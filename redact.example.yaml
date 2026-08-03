@@ -1,5 +1,6 @@
 # Example anonymisation rules (copy to redact.yaml and set redact_file in
-# docgen.yaml). Applied to every payload before it reaches the Anthropic API;
+# docgen.yaml). Applied to every payload before it reaches the configured LLM
+# provider's API (identically for every provider);
 # named replacements are reversed in the response so local documents keep the
 # real names. Substitutions are logged to <output>/redaction-log.md.
 #

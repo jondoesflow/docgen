@@ -52,9 +52,11 @@ formats: [md, docx]
 # built-in one of the same name.
 # rules_dir: rules/
 
-# Anonymisation rules applied before anything is sent to the Anthropic API.
+# Anonymisation rules applied before anything is sent to the LLM provider.
 # redact_file: redact.yaml
 
+# Prefer `docgen model use <provider>/<model>` over editing this block by hand —
+# it validates the provider and preserves the rest of the file.
 llm:
   provider: anthropic
   model: claude-sonnet-4-6
