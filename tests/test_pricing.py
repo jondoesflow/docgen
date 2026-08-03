@@ -37,6 +37,25 @@ def test_summary_line_unknown_model():
     assert "pricing unknown" in line
 
 
+def test_rates_live_on_provider_registry_entry():
+    """Pricing is per-provider: rates come from the registry's ProviderSpec."""
+    from docgen.llm.registry import get_provider
+
+    assert rates_for("claude-sonnet-4-6", provider="anthropic") == (3.00, 15.00)
+    assert get_provider("anthropic").pricing["claude-sonnet-4-6"] == (3.00, 15.00)
+
+
+def test_unknown_provider_yields_no_estimate():
+    assert rates_for("claude-sonnet-4-6", provider="acme-ai") is None
+    line = usage_summary_line("claude-sonnet-4-6", 1, 100, 100, provider="acme-ai")
+    assert "pricing unknown" in line
+
+
+def test_summary_line_names_provider_and_model():
+    line = usage_summary_line("claude-sonnet-4-6", 7, 50_000, 5_000, provider="anthropic")
+    assert "(anthropic/claude-sonnet-4-6)" in line
+
+
 def test_render_reports_cost_when_llm_used(built_fixtures, tmp_path, capsys):
     """End-of-run summary appears when the narrative provider carries a used client."""
     from docgen.commands import render_documents

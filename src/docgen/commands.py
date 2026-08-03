@@ -291,23 +291,27 @@ def transcript_template_context(snapshot, key: str, title: str) -> dict:
 
 
 def report_llm_usage(narrative, cfg: DocgenConfig) -> None:
-    """Print token usage + estimated Anthropic API cost for this run (if any)."""
+    """Print token usage + estimated API cost for this run (if any)."""
     client = getattr(narrative, "client", None)
     calls = getattr(client, "calls", 0)
     if not client or not calls:
         return
     from docgen.llm.pricing import usage_summary_line
 
+    spec = getattr(client, "spec", None)
+    provider = getattr(spec, "key", cfg.llm.provider)
     typer.secho(
         "  " + usage_summary_line(
             getattr(client, "model", cfg.llm.model),
             calls,
             getattr(client, "total_input_tokens", 0),
             getattr(client, "total_output_tokens", 0),
+            provider=provider,
         ),
         fg=typer.colors.CYAN,
     )
-    typer.echo("  (estimate from published API prices; the Anthropic console is authoritative)")
+    console = f"the {spec.display_name} billing console" if spec else "the provider's billing console"
+    typer.echo(f"  (estimate from published API prices; {console} is authoritative)")
 
 
 def run_diff(old_path: Path, new_path: Path, formats: list[str], out_dir: Path, cfg: DocgenConfig) -> None:

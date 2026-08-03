@@ -1,7 +1,9 @@
-"""Anonymisation pass applied to every payload before it reaches the Anthropic
-API, driven by redact.yaml. Named replacements are reversed in responses so
-local documents show real names while the API only ever sees placeholders.
-Regex patterns are one-way. Every substitution is logged to the output folder."""
+"""Anonymisation pass applied to every payload before it reaches the LLM
+provider's API, driven by redact.yaml. Named replacements are reversed in
+responses so local documents show real names while the provider only ever sees
+placeholders. Regex patterns are one-way. Every substitution is logged to the
+output folder. Redaction is provider-independent: it runs identically
+whichever provider is configured."""
 
 from __future__ import annotations
 
@@ -61,7 +63,7 @@ class Redactor:
     def write_log(self, out_dir: Path) -> Path | None:
         log_path = Path(out_dir) / "redaction-log.md"
         lines = ["# Redaction log", "",
-                 "Substitutions applied to snapshot content before it was sent to the Anthropic API.", ""]
+                 "Substitutions applied to snapshot content before it was sent to the LLM provider.", ""]
         if not self.replacements and not self.patterns:
             lines.append("No redaction rules configured (no redact.yaml).")
         elif not self.events:

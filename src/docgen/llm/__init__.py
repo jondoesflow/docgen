@@ -1,4 +1,5 @@
-"""LLM tier: optional narrative drafting via the Anthropic API.
+"""LLM tier: optional narrative drafting via the configured provider
+(Anthropic by default; see docgen.llm.registry).
 
 Pipeline per narrative request:
 payload slice → redaction (redact.yaml) → prompt → API → validate every
@@ -11,11 +12,11 @@ can improve documents but never break a run.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import typer
 
-from docgen.config import DocgenConfig
-from docgen.llm.client import LlmClient, MissingApiKeyError
+from docgen.llm.client import LlmClient, MissingApiKeyError, create_client
 from docgen.llm.prompts import (
     SYSTEM_PROMPT,
     TRANSCRIPT_SYSTEM_PROMPT,
@@ -32,14 +33,32 @@ from docgen.llm.validate import (
     find_violations,
 )
 
+if TYPE_CHECKING:
+    from docgen.config import DocgenConfig
 
-def make_narrative_provider(snapshot, cfg: DocgenConfig, out_dir: Path, client: LlmClient | None = None):
+
+def _create_client_or_none(cfg: "DocgenConfig", out_dir: Path) -> LlmClient | None:
+    """Build the configured provider's client, or None (degrade to placeholders)."""
+    try:
+        client = create_client(cfg.llm, out_dir)
+    except MissingApiKeyError as exc:
+        typer.secho(f"{exc} Continuing with placeholders.", fg=typer.colors.YELLOW, err=True)
+        return None
+    # Compliance: the active provider must be visible every time the LLM
+    # tier runs — provider choice is a per-engagement decision.
+    typer.secho(
+        f"  LLM provider: {client.spec.display_name} — model {client.model} "
+        f"(key from {client.key_source})",
+        fg=typer.colors.CYAN,
+    )
+    return client
+
+
+def make_narrative_provider(snapshot, cfg: "DocgenConfig", out_dir: Path, client: LlmClient | None = None):
     """Returns a (purpose, payload) -> str|None callable. `client` injectable for tests."""
     if client is None:
-        try:
-            client = LlmClient(cfg.llm.model, cfg.llm.max_tokens, out_dir)
-        except MissingApiKeyError as exc:
-            typer.secho(f"{exc} Continuing with placeholders.", fg=typer.colors.YELLOW, err=True)
+        client = _create_client_or_none(cfg, out_dir)
+        if client is None:
             return lambda purpose, payload: None
 
     names = collect_component_names(snapshot)
@@ -87,10 +106,8 @@ def make_transcript_narrative_provider(snapshot, cfg: DocgenConfig, out_dir: Pat
     solution metadata.
     """
     if client is None:
-        try:
-            client = LlmClient(cfg.llm.model, cfg.llm.max_tokens, out_dir)
-        except MissingApiKeyError as exc:
-            typer.secho(f"{exc} Continuing with placeholders.", fg=typer.colors.YELLOW, err=True)
+        client = _create_client_or_none(cfg, out_dir)
+        if client is None:
             return lambda purpose, payload: None
 
     names = collect_participant_names(snapshot)

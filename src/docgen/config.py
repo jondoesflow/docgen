@@ -1,8 +1,9 @@
 """docgen.yaml loading and validation.
 
 Discovery order: explicit --config path → ./docgen.yaml → built-in defaults.
-The Anthropic API key is read from the ANTHROPIC_API_KEY environment variable
-only; it must never appear in config files or CLI arguments.
+API keys never appear in config files or CLI arguments — each provider's key
+is read from its environment variable (e.g. ANTHROPIC_API_KEY); see
+docgen.llm.registry.
 """
 
 from __future__ import annotations
@@ -10,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from docgen.constants import ALL_DOC_KEYS, ALL_FORMATS, ALL_TRANSCRIPT_DOC_KEYS
 
@@ -22,9 +23,19 @@ class ConfigError(ValueError):
 class LLMConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    provider: str = "anthropic"
     model: str = "claude-sonnet-4-6"
     max_tokens: int = 4096
     enabled: bool = True
+
+    @field_validator("provider")
+    @classmethod
+    def _provider_in_registry(cls, value: str) -> str:
+        # Imported lazily to avoid a config <-> llm import cycle at module load.
+        from docgen.llm.registry import get_provider
+
+        get_provider(value)  # raises UnknownProviderError (a ValueError) if unknown
+        return value
 
 
 class DocgenConfig(BaseModel):
