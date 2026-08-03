@@ -139,6 +139,36 @@ docgen all MySolution.zip --no-llm -o out/
 docgen all DiscoveryWorkshop.txt --no-llm -o out/
 ```
 
+### `docgen model list|use|key|status`
+
+Choose which LLM provider and model the narrative tier calls, and manage API
+keys. Anthropic is the default; nothing changes if you never touch this.
+
+```bash
+docgen model list                              # providers + example model strings, active one marked
+docgen model use anthropic/claude-sonnet-4-6   # the default
+docgen model use openai/gpt-4o
+docgen model use deepseek/deepseek-chat
+docgen model key deepseek                      # hidden prompt → OS keyring (or git-ignored .env fallback)
+docgen model status                            # active provider/model, key source, masked key tail
+```
+
+- `use` takes `provider/model`, validates the provider against the registry
+  and warns — without blocking — when the model string is not in the
+  known-models list. The selection is written to `docgen.yaml` (explicit
+  `--config` path, else `./docgen.yaml`, created if missing) with all other
+  content and comments preserved.
+- `key` prompts with input hidden (`getpass`) and stores the key in the OS
+  keyring. On headless/CI machines with no keyring it falls back to a
+  git-ignored `.env` file with `0600` permissions and says so. The key is
+  never echoed; confirmation shows the last 4 characters only.
+- `status` reports which source the active provider's key actually resolved
+  from: environment variable, OS keyring, or `.env` — in that precedence
+  order.
+- The active provider is a **per-engagement decision** — see the compliance
+  section in the README. Every LLM run prints the provider it is about to
+  use.
+
 ### Global
 
 - `docgen --version`
@@ -277,16 +307,29 @@ docx_template: templates/client-brand.docx   # single fallback template (see bel
 rules_dir: rules/              # rules overrides (see below)
 redact_file: redact.yaml       # anonymisation rules for the LLM tier
 llm:
+  provider: anthropic          # anthropic (default) | openai | deepseek | kimi | gemini | mistral | xai
   model: claude-sonnet-4-6
   max_tokens: 4096
   enabled: true                # config-level LLM kill-switch
 ```
 
+Prefer `docgen model use <provider>/<model>` over hand-editing `llm:` — it
+validates the provider, warns on unrecognised model strings, and preserves the
+rest of the file (comments included).
+
 ### Environment variables
 
 | Variable | Purpose |
 | --- | --- |
-| `ANTHROPIC_API_KEY` | Enables the LLM narrative tier. The **only** place the key is ever read from — never config or arguments. Missing key + LLM requested → docgen warns and falls back to placeholders. |
+| `ANTHROPIC_API_KEY` | API key for the default provider (Anthropic). |
+| `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `MOONSHOT_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `XAI_API_KEY` | API keys for the other supported providers. |
+
+Keys are resolved per provider with this precedence (first hit wins):
+**environment variable → OS keyring (`docgen model key`) → git-ignored `.env`
+file** in the project folder. Keys are never read from config files or
+command-line arguments. Missing key + LLM requested → docgen warns, names the
+exact variable and the `docgen model key` command, and falls back to
+placeholders; `--no-llm` runs need no key at all.
 
 ## Branded docx templates
 
@@ -387,22 +430,26 @@ format.
 
 ## LLM cost reporting
 
-Every run that calls the Anthropic API ends with a usage summary on the console:
+Every run that calls an LLM API ends with a usage summary on the console
+naming the provider it was spent with:
 
 ```
-  LLM usage: 9 call(s), 61,204 input + 4,318 output tokens (claude-sonnet-4-6) - estimated cost $0.2484 USD
-  (estimate from published API prices; the Anthropic console is authoritative)
+  LLM usage: 9 call(s), 61,204 input + 4,318 output tokens (anthropic/claude-sonnet-4-6) - estimated cost $0.2484 USD
+  (estimate from published API prices; the Anthropic billing console is authoritative)
 ```
 
-The estimate is computed from published per-token API prices for the
-configured model (see `src/docgen/llm/pricing.py`; update that table if
-Anthropic's pricing changes). Unknown models still get the token counts, just
-no dollar figure. Per-call token detail is in `<output>/llm-log.jsonl`.
-Offline (`--no-llm`) runs print nothing — nothing was sent, nothing was spent.
+The estimate is computed from the per-token rates carried on the provider's
+registry entry (`src/docgen/llm/registry.py`; update the `pricing` table there
+when a provider's published prices change). A provider or model without a
+pricing entry still gets the token counts, with "pricing unknown" instead of a
+dollar figure — never a wrong number. Per-call detail (provider, model, token
+counts) is in `<output>/llm-log.jsonl`. Offline (`--no-llm`) runs print
+nothing — nothing was sent, nothing was spent.
 
 ## Anonymisation — `redact.yaml`
 
-Applied to every payload before it reaches the Anthropic API. See
+Applied to every payload before it reaches the configured LLM provider —
+identically for every provider. See
 [redact.example.yaml](../redact.example.yaml). `replacements` are exact-string
 swaps reversed in responses (local docs keep real names); `patterns` are
 one-way regex redactions. Substitutions are logged to
@@ -449,11 +496,11 @@ https://mermaid.live for one-offs.
 by a different major version of docgen. Re-run `docgen parse` on the original
 zip.
 
-**LLM narrative missing / placeholders despite no `--no-llm`** — check
-`ANTHROPIC_API_KEY` is exported in the same shell, and look for yellow
-warnings in the output: rejected narratives (invented component names) and API
-errors both degrade to placeholders by design. `llm-log.jsonl` shows what was
-attempted.
+**LLM narrative missing / placeholders despite no `--no-llm`** — run
+`docgen model status` to see whether a key resolves for the active provider
+(and from which source), and look for yellow warnings in the output: rejected
+narratives (invented component names) and API errors both degrade to
+placeholders by design. `llm-log.jsonl` shows what was attempted.
 
 **Lots of `unknown_component` parse warnings** — expected for component types
 docgen has no specialised parser for (they still appear in the generic

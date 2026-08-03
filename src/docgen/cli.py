@@ -45,6 +45,15 @@ OutputOpt = typer.Option(None, "--output", "-o", help="Output folder (default: f
 SOLUTION_KIND = "solution"
 TRANSCRIPT_KIND = "transcript"
 
+model_app = typer.Typer(
+    help=(
+        "Choose the LLM provider/model and manage API keys. The active provider is a "
+        "per-engagement decision: data goes to whichever provider is selected here."
+    ),
+    no_args_is_help=True,
+)
+app.add_typer(model_app, name="model")
+
 
 def _version_callback(value: bool) -> None:
     if value:
@@ -274,6 +283,47 @@ def all_cmd(
     from docgen.commands import run_all
 
     run_all(source, doc_keys, formats, out_dir, cfg, no_llm=no_llm, check_learn=check_learn)
+
+
+@model_app.command("list")
+def model_list(config: Optional[Path] = ConfigOpt) -> None:
+    """Supported providers with example model strings; the active one is marked."""
+    cfg = _load_config_or_exit(config)
+
+    from docgen.modelcmd import run_model_list
+
+    run_model_list(cfg)
+
+
+@model_app.command("use")
+def model_use(
+    selection: str = typer.Argument(..., help="provider/model, e.g. anthropic/claude-sonnet-4-6 or deepseek/deepseek-chat."),
+    config: Optional[Path] = ConfigOpt,
+) -> None:
+    """Set the active provider/model, persisted in docgen.yaml (comments preserved)."""
+    from docgen.modelcmd import run_model_use
+
+    run_model_use(selection, config)
+
+
+@model_app.command("key")
+def model_key(
+    provider: str = typer.Argument(..., help="Provider to store an API key for (see `docgen model list`)."),
+) -> None:
+    """Store an API key via a hidden prompt: OS keyring, or a git-ignored .env fallback."""
+    from docgen.modelcmd import run_model_key
+
+    run_model_key(provider)
+
+
+@model_app.command("status")
+def model_status(config: Optional[Path] = ConfigOpt) -> None:
+    """Active provider/model and where its API key resolves from (masked)."""
+    cfg = _load_config_or_exit(config)
+
+    from docgen.modelcmd import run_model_status
+
+    run_model_status(cfg)
 
 
 if __name__ == "__main__":

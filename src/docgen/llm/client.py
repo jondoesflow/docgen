@@ -4,7 +4,11 @@ LlmClient owns everything providers share: API-key resolution, call and token
 accounting, and the llm-log.jsonl audit trail in the output folder — the only
 record of what left the machine, alongside redaction-log.md. A subclass
 implements _connect/_request for one provider's transport; create_client
-dispatches on the provider configured in docgen.yaml (llm.provider)."""
+dispatches on the provider configured in docgen.yaml (llm.provider).
+
+Transports: AnthropicClient (native SDK), GeminiClient (google-genai SDK), and
+OpenAICompatClient for every provider speaking the OpenAI chat-completions
+dialect (OpenAI itself plus DeepSeek, Kimi, Mistral and xAI via base_url)."""
 
 from __future__ import annotations
 
@@ -13,7 +17,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from docgen.llm.registry import ProviderSpec, get_provider, resolve_api_key
+from docgen.llm.keys import resolve_api_key
+from docgen.llm.registry import ProviderSpec, get_provider
 
 
 class MissingApiKeyError(RuntimeError):
@@ -28,8 +33,8 @@ class LlmClient:
         if resolved is None:
             raise MissingApiKeyError(
                 f"No API key found for {spec.display_name}. Set the {spec.env_var} "
-                "environment variable to use the LLM tier, or run with --no-llm "
-                "(fully offline)."
+                f"environment variable, or store a key with `docgen model key {spec.key}`. "
+                "Running with --no-llm still works fully offline."
             )
         api_key, self.key_source = resolved
         self.spec = spec
@@ -96,9 +101,65 @@ class AnthropicClient(LlmClient):
         return text, getattr(usage, "input_tokens", None), getattr(usage, "output_tokens", None)
 
 
+class OpenAICompatClient(LlmClient):
+    """OpenAI chat-completions dialect; base_url from the registry selects the
+    provider (None = api.openai.com)."""
+
+    def _connect(self, api_key: str) -> None:
+        import openai
+
+        self._client = openai.OpenAI(api_key=api_key, base_url=self.spec.base_url, max_retries=3)
+
+    def _request(self, system: str, user: str) -> tuple[str, int | None, int | None]:
+        response = self._client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            **{self.spec.max_tokens_param: self.max_tokens},
+        )
+        choice = response.choices[0] if getattr(response, "choices", None) else None
+        text = (getattr(getattr(choice, "message", None), "content", None) or "") if choice else ""
+        usage = getattr(response, "usage", None)
+        return text, getattr(usage, "prompt_tokens", None), getattr(usage, "completion_tokens", None)
+
+
+class GeminiClient(LlmClient):
+    def _connect(self, api_key: str) -> None:
+        from google import genai
+
+        self._client = genai.Client(api_key=api_key)
+
+    def _request(self, system: str, user: str) -> tuple[str, int | None, int | None]:
+        from google.genai import types
+
+        response = self._client.models.generate_content(
+            model=self.model,
+            contents=user,
+            config=types.GenerateContentConfig(
+                system_instruction=system,
+                max_output_tokens=self.max_tokens,
+            ),
+        )
+        text = getattr(response, "text", None) or ""
+        usage = getattr(response, "usage_metadata", None)
+        return (
+            text,
+            getattr(usage, "prompt_token_count", None),
+            getattr(usage, "candidates_token_count", None),
+        )
+
+
 # provider key -> client class; every PROVIDERS entry must have one
 CLIENT_CLASSES: dict[str, type[LlmClient]] = {
     "anthropic": AnthropicClient,
+    "openai": OpenAICompatClient,
+    "deepseek": OpenAICompatClient,
+    "kimi": OpenAICompatClient,
+    "gemini": GeminiClient,
+    "mistral": OpenAICompatClient,
+    "xai": OpenAICompatClient,
 }
 
 

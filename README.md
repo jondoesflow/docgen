@@ -133,11 +133,15 @@ hint describing what belongs there. This is a first-class mode, not a degraded
 one — the Actions & Decisions Register is complete offline and can be
 circulated the moment the transcript lands.
 
-**Tier 2 — LLM narrative (optional).** With `ANTHROPIC_API_KEY` set and
-`--no-llm` omitted, docgen drafts those narrative sections using the Anthropic
-API (`claude-sonnet-4-6` by default). The LLM only ever **adds prose** — no
-document depends on it to exist. Every response is validated against the
-snapshot, on the axis that matters for that document:
+**Tier 2 — LLM narrative (optional).** With an API key available and
+`--no-llm` omitted, docgen drafts those narrative sections using the
+configured LLM provider — **Anthropic (`claude-sonnet-4-6`) by default**, or
+any of OpenAI, DeepSeek, Kimi (Moonshot AI), Google Gemini, Mistral and xAI
+selected with `docgen model use <provider>/<model>` (see
+[Choosing the LLM provider](#choosing-the-llm-provider-and-model)). The LLM
+only ever **adds prose** — no document depends on it to exist. Every response
+is validated against the snapshot, identically for every provider, on the axis
+that matters for that document:
 
 - **Solution documents** — if the prose names a table, flow or component that
   does not exist in the metadata, it is rejected.
@@ -148,21 +152,66 @@ snapshot, on the axis that matters for that document:
 
 Either way the response is retried once naming the violations; if it fails
 again, the placeholder is used. No invented capabilities, no invented
-attributions.
+attributions. This validation is provider-independent output checking — it is
+the safety net that makes switching providers safe at all.
+
+## Choosing the LLM provider and model
+
+```bash
+docgen model list                          # providers + example model strings, active one marked
+docgen model use deepseek/deepseek-chat    # switch (persisted in docgen.yaml, comments preserved)
+docgen model key deepseek                  # store an API key via a hidden prompt
+docgen model status                        # active provider/model, key source, masked key tail
+docgen model use anthropic/claude-sonnet-4-6   # back to the default
+```
+
+`model use` validates the provider against the registry and warns (without
+blocking) when the model string is not in the known-models list — new models
+ship faster than registries update.
+
+**API keys are never stored in `docgen.yaml`.** Each provider reads its key
+with this precedence (first hit wins, and `model status` reports which source
+won):
+
+1. the real environment variable — `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+   `DEEPSEEK_API_KEY`, `MOONSHOT_API_KEY`, `GEMINI_API_KEY`,
+   `MISTRAL_API_KEY`, `XAI_API_KEY`
+2. the OS keyring (Windows Credential Manager / macOS Keychain / Secret
+   Service) — where `docgen model key` stores it
+3. a git-ignored `.env` file in the project folder (written with `0600`
+   permissions) — the automatic fallback on headless/CI machines with no
+   keyring, announced with a warning when used
+
+A CLI cannot persistently set an environment variable in your shell, which is
+why `model key` writes to the keyring or `.env` instead. Keys never appear in
+config YAML, logs, error messages, or command output — `model status` masks
+them to the last 4 characters.
 
 ## Compliance: what leaves the machine, and when
 
 - **Nothing, by default.** `--no-llm` runs are fully offline. All inputs and
   outputs are local files; docgen keeps no state outside the output folder and
   sends no telemetry.
+- **The active provider is a per-engagement decision.** With the LLM tier
+  enabled, narrative slices go to whichever provider is configured —
+  Anthropic by default. Data residency and processing terms differ by
+  provider, and some client contracts will not permit certain providers.
+  docgen prints the active provider, model and key source every time the LLM
+  tier initialises, and the end-of-run usage summary names it again, so
+  nobody sends client-derived content to a provider they didn't consciously
+  choose. Check the provider against the engagement's contract before
+  enabling the LLM tier.
 - **With the LLM tier**: only the slices needed for each narrative section are
-  sent to the Anthropic API. Before anything is sent, a configurable
+  sent to the provider's API. Before anything is sent, a configurable
   anonymisation pass (`redact.yaml` — see
   [redact.example.yaml](redact.example.yaml)) replaces client names, project
   codenames and named individuals; named replacements are reversed in the
-  response, so local documents keep real names while the API never sees them.
-  Every substitution is logged to `<output>/redaction-log.md` and every API
-  call to `<output>/llm-log.jsonl` (prompt hash and token counts, not content).
+  response, so local documents keep real names while the provider never sees
+  them. **Redaction runs identically for every provider** — it happens before
+  the provider client is invoked, and the test suite asserts it. Every
+  substitution is logged to `<output>/redaction-log.md` and every API call to
+  `<output>/llm-log.jsonl` (provider, prompt hash and token counts, not
+  content).
 - **Transcripts raise the stakes on that.** A workshop transcript is people,
   commercial numbers and candid opinions, not schema. Slices sent for
   transcript narrative include speaker names and quoted sentences, so
@@ -172,8 +221,9 @@ attributions.
 - **With `--check-learn`**: docgen fetches the Microsoft Learn URLs listed in
   the deprecation rules to verify they are still reachable. No solution data
   is sent — only the rule URLs are requested.
-- The API key is read from the `ANTHROPIC_API_KEY` environment variable only —
-  never from config files or command-line arguments.
+- API keys are read from the environment, the OS keyring, or a git-ignored
+  `.env` file (in that order) — never from config files or command-line
+  arguments, and never echoed back.
 
 ## The document set
 
