@@ -13,7 +13,7 @@ because new models ship faster than registries update.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 class UnknownProviderError(ValueError):
@@ -27,6 +27,11 @@ class ProviderSpec:
     env_var: str  # environment variable holding the API key
     known_models: tuple[str, ...]
     supports_structured_output: bool
+    # model-id prefix -> (input $/MTok, output $/MTok), from the provider's
+    # published API pricing. Estimates only — the provider's billing console is
+    # authoritative. An empty dict means docgen prints "pricing unknown"
+    # rather than a wrong number; dated model variants resolve by prefix.
+    pricing: dict[str, tuple[float, float]] = field(default_factory=dict)
 
 
 PROVIDERS: dict[str, ProviderSpec] = {
@@ -40,6 +45,19 @@ PROVIDERS: dict[str, ProviderSpec] = {
             "claude-haiku-4-5",
         ),
         supports_structured_output=True,
+        # Cached 2026-06 from Anthropic's published API pricing.
+        pricing={
+            "claude-fable-5": (10.00, 50.00),
+            "claude-opus-5": (5.00, 25.00),
+            "claude-opus-4-8": (5.00, 25.00),
+            "claude-opus-4-7": (5.00, 25.00),
+            "claude-opus-4-6": (5.00, 25.00),
+            # Sonnet 5 has an introductory rate ($2/$10) through 2026-08-31;
+            # the standard rate below is an upper bound during that window.
+            "claude-sonnet-5": (3.00, 15.00),
+            "claude-sonnet-4-6": (3.00, 15.00),
+            "claude-haiku-4-5": (1.00, 5.00),
+        },
     ),
 }
 
