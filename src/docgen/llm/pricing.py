@@ -29,22 +29,44 @@ def rates_for(model: str, provider: str = "anthropic") -> tuple[float, float] | 
     return best[1] if best else None
 
 
+# Anthropic's prompt-cache multipliers on the input rate: writes cost 1.25x
+# (5-minute TTL), reads 0.1x. Applied only when cache token counts are
+# reported; other providers have no pricing tables yet, so no multiplier
+# assumptions are made for them.
+CACHE_WRITE_MULTIPLIER = 1.25
+CACHE_READ_MULTIPLIER = 0.10
+
+
 def estimate_cost(model: str, input_tokens: int, output_tokens: int,
-                  provider: str = "anthropic") -> float | None:
-    """Estimated USD cost, or None when the model's pricing is unknown."""
+                  provider: str = "anthropic",
+                  cache_write_tokens: int = 0, cache_read_tokens: int = 0) -> float | None:
+    """Estimated USD cost, or None when the model's pricing is unknown.
+
+    input_tokens is the uncached remainder (Anthropic's convention: cached
+    tokens are reported separately in the cache_* fields)."""
     rates = rates_for(model, provider)
     if rates is None:
         return None
     input_rate, output_rate = rates
-    return (input_tokens / 1_000_000) * input_rate + (output_tokens / 1_000_000) * output_rate
+    return (
+        (input_tokens / 1_000_000) * input_rate
+        + (cache_write_tokens / 1_000_000) * input_rate * CACHE_WRITE_MULTIPLIER
+        + (cache_read_tokens / 1_000_000) * input_rate * CACHE_READ_MULTIPLIER
+        + (output_tokens / 1_000_000) * output_rate
+    )
 
 
 def usage_summary_line(model: str, calls: int, input_tokens: int, output_tokens: int,
-                       provider: str = "anthropic") -> str:
+                       provider: str = "anthropic",
+                       cache_write_tokens: int = 0, cache_read_tokens: int = 0) -> str:
     """One console line summarising a run's LLM usage and estimated cost."""
     base = (f"LLM usage: {calls} call(s), {input_tokens:,} input + {output_tokens:,} output tokens "
             f"({provider}/{model})")
-    cost = estimate_cost(model, input_tokens, output_tokens, provider)
+    if cache_write_tokens or cache_read_tokens:
+        base += f", prompt cache: {cache_write_tokens:,} written + {cache_read_tokens:,} read"
+    cost = estimate_cost(model, input_tokens, output_tokens, provider,
+                         cache_write_tokens=cache_write_tokens,
+                         cache_read_tokens=cache_read_tokens)
     if cost is None:
         return base + " - pricing unknown for this model, no cost estimate"
     return base + f" - estimated cost ${cost:.4f} USD"

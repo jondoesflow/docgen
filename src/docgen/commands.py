@@ -307,6 +307,8 @@ def report_llm_usage(narrative, cfg: DocgenConfig) -> None:
             getattr(client, "total_input_tokens", 0),
             getattr(client, "total_output_tokens", 0),
             provider=provider,
+            cache_write_tokens=getattr(client, "total_cache_write_tokens", 0),
+            cache_read_tokens=getattr(client, "total_cache_read_tokens", 0),
         ),
         fg=typer.colors.CYAN,
     )

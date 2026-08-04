@@ -311,6 +311,7 @@ llm:
   model: claude-sonnet-4-6
   max_tokens: 4096
   enabled: true                # config-level LLM kill-switch
+  cache: true                  # prompt caching (see LLM cost reporting below)
 ```
 
 Prefer `docgen model use <provider>/<model>` over hand-editing `llm:` — it
@@ -445,6 +446,25 @@ pricing entry still gets the token counts, with "pricing unknown" instead of a
 dollar figure — never a wrong number. Per-call detail (provider, model, token
 counts) is in `<output>/llm-log.jsonl`. Offline (`--no-llm`) runs print
 nothing — nothing was sent, nothing was spent.
+
+### Prompt caching
+
+With `llm.cache: true` (the default), docgen marks the shared system prompt as
+cacheable on Anthropic calls, so every call after the first in a run reads it
+from cache at ~10% of the input price (cache writes cost 1.25×, reads 0.1× —
+both included in the cost estimate). Two honest caveats:
+
+- Anthropic silently skips caching for prefixes below a model-dependent
+  minimum (1,024 tokens on `claude-sonnet-4-6`); docgen's system prompts are
+  currently below that, so expect the cache columns to stay at zero until the
+  prompts grow. The breakpoint costs nothing when it doesn't engage.
+- Each call's payload slice is unique by design, so only the system prompt is
+  ever shared — caching can never cover the bulk of docgen's input tokens.
+
+OpenAI, DeepSeek and Gemini cache automatically on their side with no request
+opt-in; when they report cache hits, docgen records them in `llm-log.jsonl`
+(`cache_write_tokens` / `cache_read_tokens`) and the run summary adds a
+`prompt cache: N written + M read` segment whenever caching engaged.
 
 ## Anonymisation — `redact.yaml`
 
