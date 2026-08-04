@@ -62,3 +62,7 @@ llm:
   model: claude-sonnet-4-6
   max_tokens: 4096
   enabled: true
+  # Prompt caching: on Anthropic the shared system prompt carries a cache
+  # breakpoint (harmless below the model's minimum cacheable size). Other
+  # providers cache automatically server-side. Set false to opt out.
+  cache: true

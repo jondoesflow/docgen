@@ -27,6 +27,11 @@ class LLMConfig(BaseModel):
     model: str = "claude-sonnet-4-6"
     max_tokens: int = 4096
     enabled: bool = True
+    # Prompt caching. On Anthropic this adds a cache breakpoint to the shared
+    # system prompt (a no-op below the model's minimum cacheable size, so safe
+    # to leave on). Other providers cache automatically server-side and ignore
+    # this switch.
+    cache: bool = True
 
     @field_validator("provider")
     @classmethod
